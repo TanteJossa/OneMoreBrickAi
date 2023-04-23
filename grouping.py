@@ -65,16 +65,14 @@ def check_validity_grid(grid: list[list[int]]) -> bool:
 
     # check if the grid has 8 rows
     if len(grid) != grid_format[0]:      
-        ValueError("The provided list does not have the correct amount of rows; it has {} rows, but it should have {} rows!", len(grid), grid_format[0])
+        ValueError("The provided list does not have the correct amount of rows; it has {} rows, but it should have {} rows!".format(len(grid), grid_format[0]))
 
-        return False
     
     # check if every row has 7 columns
     for i, row in enumerate(grid):
         if len(row) != grid_format[1]:
-            ValueError("The provided row does not have the correct amount of columns at row {}!", i)
+            ValueError("The provided row does not have the correct amount of columns at row {}!".format(i))
 
-            return False
 
     return True
 
@@ -106,9 +104,9 @@ def find_groups(grid: list[list[int]], num_rows: int, num_cols: int) -> list[lis
     def dfs(i, j, group) -> None:
         # check if the current position is out of bounds or has already been visited
         if i < 0 or i >= num_rows or j < 0 or j >= num_cols:
-            return None
+            return 
         if grid[i][j] == 0 or (i, j) in visited:
-            return None
+            return 
         
         # mark the current position as visited and add it to the current group
         visited.add((i, j))
@@ -119,8 +117,6 @@ def find_groups(grid: list[list[int]], num_rows: int, num_cols: int) -> list[lis
         dfs(i-1, j, group)
         dfs(i, j+1, group)
         dfs(i, j-1, group)
-
-        return None
 
     # loop through each position in the grid
     for i in range(num_rows):
