@@ -198,6 +198,17 @@ class Line():
     def unit_vector(self) -> np.ndarray:
         return self.vec.value / self.length
     
+    @property
+    def slope(self):
+        if ((self.p2.x - self.p1.x) == 0):
+            return math.nan
+        return  (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x)
+    
+    @property
+    def y_intersect(self):
+        return self.p1.y - self.slope * self.p1.x
+    
+    
     def closest_point(self, p: Point):
         (x1, y1), (x2, y2), (x3, y3) = self.p1.pos, self.p2.pos, p.pos
         dx, dy = x2-x1, y2-y1
@@ -205,7 +216,7 @@ class Line():
         num = (dy*(y3-y1)+dx*(x3-x1))
         # print(det, num)
         if (math.isnan(det) or math.isnan(num) or det == 0 or num == 0):
-            a = 0.000001
+            a = 0
         else:
             a = (dy*(y3-y1)+dx*(x3-x1))/det
 

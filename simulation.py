@@ -15,23 +15,21 @@ screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
 pygame.display.flip()
 clock = pygame.time.Clock()  
 font = pygame.font.Font('freesansbold.ttf', 32)
-
-    
-circle1 = Ball(2, 5, 1, -1, 1, '1')
-circle2 = Ball(5.5, 6)      
+                                            
+         
+circle1 = Ball(2, 5,  1, -1, 1, '1')
+circle2 = Ball(5, 6, -1, -1, 1, '2')      
 circle3 = Ball(4, 6)    
 line1 = Line([4,0], [4,2])
 # line1 = Line([2,5], [6,7])
+print(id(line1))
 environment = PhysicsEnvironment(sim_scaling, sim_scaling, [circle1], [line1])
          
                                                        
-                                             
-       
-              
-     
+                                               
 
 
-
+  
 
 
 
@@ -71,12 +69,13 @@ while running:
             pos = toSimCoords(event.pos)
             circle1.x = pos[0]
             circle1.y = pos[1]
+            environment.calc_collisions()
             
     if keyboard.is_pressed(' '):
         run_tick = True
     else:                                         
         run_tick = False
-                                         
+                                                     
     if run_tick:
         environment.run_tick(time_delta)
 

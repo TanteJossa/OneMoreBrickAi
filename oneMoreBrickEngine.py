@@ -81,9 +81,8 @@ class Collision():
             p1_to_pc = Vector(p_1.x - p_c.x, p_1.y - p_c.y)
 
             direction_point = self.ball.pos - 2 * p1_to_pc
-
+            
             new_vel = Vector(direction_point.x - self.collision_point.x, direction_point.y - self.collision_point.y)
-        
         return new_vel.unit_vector
         
         
@@ -102,17 +101,42 @@ class Interaction():
         self.is_colliding = False
         self.collision: Collision
         self.collisions: list[Collision] = []
-        self.calc_collisions()
+        self.calc_collision()
+
     
     def __repr__(self):
         return 'Interaction(ball: '+self.ball.id+', line: '+str(id(Line))+' , collided: '+str(self.is_colliding)+', collisions: '+ str(self.collisions)+')'
         
-    def calc_collisions(self):
+    def calc_collision(self):
         # a vector line
         ball_movement_line = Line(self.ball.pos, self.ball.pos + self.ball.vel)
         # print(ball_movement_line)
                         
         p_intersection: Point = self.line.intersection_point(ball_movement_line)
+        # two lines are the same
+        slope_are_the_same = self.line.slope == ball_movement_line.slope or (math.isnan(self.line.slope) and math.isnan(ball_movement_line.slope))
+        yintersect_the_same = self.line.y_intersect == ball_movement_line.y_intersect or (math.isnan(self.line.y_intersect) and math.isnan(ball_movement_line.y_intersect))
+
+        lines_are_the_same = slope_are_the_same and yintersect_the_same
+
+        # is vertical
+        if ((math.isnan(self.line.slope) and math.isnan(ball_movement_line.slope))):
+            if (self.line.p1.x != ball_movement_line.p1.x):
+                lines_are_the_same = False
+
+        if (lines_are_the_same):
+            if (self.line.p1.distance(self.ball.pos) < self.line.p2.distance(self.ball.pos)):
+                # p_intersection = self.line.p1
+                collision_point = self.line.p1 - self.ball.vel.unit_vector * self.ball.radius
+                self.collisions.append(Collision(ball=self.ball, line=self.line, collision_point=collision_point, touch_point=self.line.p1, type='point'))
+            else:
+                # p_intersection = self.line.p2
+                collision_point = self.line.p2 - self.ball.vel.unit_vector * self.ball.radius
+                self.collisions.append(Collision(ball=self.ball, line=self.line, collision_point=collision_point, touch_point=self.line.p2, type='point'))
+            self.collisions = list(filter(lambda x: x.is_valid(), self.collisions))
+            self.is_colliding = True
+            return 
+        
         if p_intersection == False:
             # movement vector and line are paralel and can never collide
             return
@@ -169,7 +193,7 @@ class Interaction():
             # print(self.collisions)
 
 class PhysicsEnvironment():
-    def __init__(self, sizex, sizey, objects=[], lines=[], step_size=0.1) -> None:
+    def __init__(self, sizex, sizey, objects=[], lines=[], step_size=0.005) -> None:
         self.step_size = step_size
         self.size : list = [sizex, sizey]
         self.objects :list[Ball] = objects
@@ -177,41 +201,48 @@ class PhysicsEnvironment():
         self.lines += [Line([0,0], [sizex, 0]), Line([sizex, 0], [sizex, sizey]), Line([sizex, sizey], [0, sizey]), Line([0, sizey], [0, 0]), ]
         self.collisions: list[Collision] = []
         self.max_collision_per_tick = 3
+        self.calc_collisions()
     
-    def get_first_collision(self, ball) -> Collision:
-        collisions = []
-        for line in self.lines:
-            interaction = Interaction(ball,line)
-            if (interaction.is_colliding):
-                collisions.append(interaction.collisions[0])
-        
-        if (len(self.collisions) != 0):            
-            collisions.sort(key=lambda x: x.distance)
-            ball.vel_lines.append([self.objects[0].pos, self.collisions[0].collision_point] ) 
-            return collisions[0]
-        else: 
-            return False
-        
-            
-    def run_tick(self, timestep=1):
-        self.collisions = []
-
-        # clear the lines
-        for ball in self.objects:
-            ball.vel_lines = []
-        
+    def calc_collisions(self):
         # get the collisions for each ball
         for ball in self.objects:
             collision = self.get_first_collision(ball)
             if (collision):
                 self.collisions.append(collision)
+
         # sort the collsions
         if (len(self.collisions) != 0):            
             self.collisions.sort(key=lambda x: x.distance)
-            self.objects[0].vel_lines.append([self.objects[0].pos, self.collisions[0].collision_point] ) 
+    
+    def get_first_collision(self, ball: Ball) -> Collision:
+        collisions = []
+        for line in self.lines:
+            interaction = Interaction(ball,line)
+            if (len(interaction.collisions) > 0):
+                collisions.append(interaction.collisions[0])
+
+        if (len(collisions) != 0):            
+            collisions.sort(key=lambda x: x.distance)
+            ball.vel_lines = []
+            ball.vel_lines.append([ball.pos, collisions[0].collision_point] ) 
+            return collisions[0]
+        else: 
+            return False
+
+            
+    def run_tick(self, timestep=1):
+        # self.collisions = []
+
+        # clear the lines
+        # for ball in self.objects:
+        #     ball.vel_lines = []
         
+
+                
+        
+
         # change the balls movements and positions
-        active_collisions : list[Collision] = list(filter(lambda x: x.distance < self.step_size * x.ball.vel.unit_vector, self.collisions))
+        active_collisions : list[Collision] = list(filter(lambda col: col.distance < self.step_size, self.collisions))
         while len(active_collisions) > 0:
             ball = active_collisions[0].ball
             left_over_distance = ball.pos.distance(active_collisions[0].collision_point)
@@ -220,28 +251,25 @@ class PhysicsEnvironment():
             
             # check if the new collision is more urgent
             collision = self.get_first_collision(ball)
-            if (collision.distance < self.step_size * ball.vel.unit_vector):
-                # the collision takes place in the current time step
-                later_collisions = [lambda col: col.distance > collision.distance, active_collisions][:1]
-                if (len(later_collisions) > 0):
-                    index = active_collisions.index(later_collisions[0])
-                    active_collisions.insert(index,collision)
-                else:
+            
+            if (collision):
+                if (collision.distance < self.step_size):
+                    # the collision takes place in the current time step
+
                     active_collisions.append(collision)
-            else:
-                # the collision takes place outside this timestep
-                later_collisions = [lambda col: col.distance > collision.distance, self.collisions][:1]
-                if (len(later_collisions) > 0):
-                    index = self.collisions.index(later_collisions[0])
-                    self.collisions.insert(index,collision)
+                    active_collisions.sort(key=lambda x: x.distance)
                 else:
+                    # the collision takes place outside this timestep
                     self.collisions.append(collision)
-            
-            for ball in self.objects:
+                    self.collisions.sort(key=lambda x: x.distance)
                 
+            for ball in self.objects:
+                ball.move_forward(active_collisions[0].distance)
             
-            self.collisions.remove(active_collisions[0])
-            active_collisions.remove(active_collisions[0])
+            if (active_collisions[0] in self.collisions):
+                self.collisions.remove(active_collisions[0])
+            if (active_collisions[0] in active_collisions):
+                active_collisions.remove(active_collisions[0])
 
 
             
