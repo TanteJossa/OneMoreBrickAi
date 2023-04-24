@@ -112,36 +112,10 @@ class Interaction():
         ball_movement_line = Line(self.ball.pos, self.ball.pos + self.ball.vel)
         # print(ball_movement_line)
                         
-        p_intersection: Point = self.line.intersection_point(ball_movement_line)
-        # two lines are the same
-        slope_are_the_same = self.line.slope == ball_movement_line.slope or (math.isnan(self.line.slope) and math.isnan(ball_movement_line.slope))
-        yintersect_the_same = self.line.y_intersect == ball_movement_line.y_intersect or (math.isnan(self.line.y_intersect) and math.isnan(ball_movement_line.y_intersect))
-
-        lines_are_the_same = slope_are_the_same and yintersect_the_same
-
-        # is vertical
-        if ((math.isnan(self.line.slope) and math.isnan(ball_movement_line.slope))):
-            if (self.line.p1.x != ball_movement_line.p1.x):
-                lines_are_the_same = False
-
-        if (lines_are_the_same):
-            if (self.line.p1.distance(self.ball.pos) < self.line.p2.distance(self.ball.pos)):
-                # p_intersection = self.line.p1
-                collision_point = self.line.p1 - self.ball.vel.unit_vector * self.ball.radius
-                self.collisions.append(Collision(ball=self.ball, line=self.line, collision_point=collision_point, touch_point=self.line.p1, type='point'))
-            else:
-                # p_intersection = self.line.p2
-                collision_point = self.line.p2 - self.ball.vel.unit_vector * self.ball.radius
-                self.collisions.append(Collision(ball=self.ball, line=self.line, collision_point=collision_point, touch_point=self.line.p2, type='point'))
-            self.collisions = list(filter(lambda x: x.is_valid(), self.collisions))
-            self.is_colliding = True
-            return 
         
-        if p_intersection == False:
-            # movement vector and line are paralel and can never collide
-            return
-        
+
         # 1. the bal touches an edge point on his way
+        # check this first because the lines can be parralel, then there will be no intersection point
         line_p1_closest = ball_movement_line.closest_point(self.line.p1)
         line_p1_distance = line_p1_closest.distance(self.line.p1)
         line_p2_closest = ball_movement_line.closest_point(self.line.p2)
@@ -161,29 +135,34 @@ class Interaction():
                 collision2_point = line_p2_closest - collision2_point_offset * self.ball.vel.unit_vector
                 # collision2_distance = collision2_point.distance(self.ball.pos)
                 self.collisions.append(Collision(ball=self.ball, line=self.line, collision_point=collision2_point, touch_point=self.line.p2, type='point'))
-            
-        # 2. the center of the Ball crosses the line
-        ball_closest_on_line = self.line.closest_point(self.ball.pos)
-        ball_distance = ball_closest_on_line.distance(self.ball.pos)
-        
-        clostest_to_intersection_vec = Vector(p_intersection.x - ball_closest_on_line.x, p_intersection.y - ball_closest_on_line.y)
-        
-        
-        col_ratio = self.ball.radius / ball_distance
-        
-        touch_point = p_intersection - clostest_to_intersection_vec * col_ratio
-        
-   
-        
-        
-        if (self.line.point_on_line(touch_point)):
-            # line collision
-            distance_touch_to_intersection = touch_point.distance(p_intersection)
-            distance_intersection_to_collision = math.sqrt(self.ball.radius**2 + distance_touch_to_intersection**2)
-     
-            collision_point = p_intersection - self.ball.vel.unit_vector * distance_intersection_to_collision
 
-            self.collisions.append(Collision(ball=self.ball, line=self.line, collision_point=collision_point, touch_point=touch_point, type='line'))
+        p_intersection: Point = self.line.intersection_point(ball_movement_line)
+
+        if p_intersection != False:
+            # both lines arent parralel, so a line collision van occur
+        
+            # 2. the center of the Ball crosses the line
+            ball_closest_on_line = self.line.closest_point(self.ball.pos)
+            ball_distance = ball_closest_on_line.distance(self.ball.pos)
+            
+            clostest_to_intersection_vec = Vector(p_intersection.x - ball_closest_on_line.x, p_intersection.y - ball_closest_on_line.y)
+            
+            
+            col_ratio = self.ball.radius / ball_distance
+            
+            touch_point = p_intersection - clostest_to_intersection_vec * col_ratio
+            
+    
+            
+            
+            if (self.line.point_on_line(touch_point)):
+                # line collision
+                distance_touch_to_intersection = touch_point.distance(p_intersection)
+                distance_intersection_to_collision = math.sqrt(self.ball.radius**2 + distance_touch_to_intersection**2)
+        
+                collision_point = p_intersection - self.ball.vel.unit_vector * distance_intersection_to_collision
+
+                self.collisions.append(Collision(ball=self.ball, line=self.line, collision_point=collision_point, touch_point=touch_point, type='line'))
 
         self.collisions = list(filter(lambda x: x.is_valid(), self.collisions))
         if (len(self.collisions) > 0):
@@ -239,13 +218,12 @@ class PhysicsEnvironment():
         
 
                 
-        
+        travelled_distance = 0
 
         # change the balls movements and positions
         active_collisions : list[Collision] = list(filter(lambda col: col.distance < self.step_size, self.collisions))
         while len(active_collisions) > 0:
             ball = active_collisions[0].ball
-            left_over_distance = ball.pos.distance(active_collisions[0].collision_point)
             ball.vel = active_collisions[0].calc_new_vel()
             ball.pos = active_collisions[0].collision_point
             
@@ -265,24 +243,26 @@ class PhysicsEnvironment():
                 
             for ball in self.objects:
                 ball.move_forward(active_collisions[0].distance)
-            
+            travelled_distance += active_collisions[0].distance
             if (active_collisions[0] in self.collisions):
                 self.collisions.remove(active_collisions[0])
             if (active_collisions[0] in active_collisions):
                 active_collisions.remove(active_collisions[0])
 
-
+        if (travelled_distance < self.step_size):
+            for ball in self.objects:
+                ball.move_forward(self.step_size - travelled_distance)
             
-        for ball in self.objects:
-            if (len(active_collisions) > 0):
-                if (ball in [col.ball for col in active_collisions]):
-                    # print(self.collisions[0].distance, ball.vel.unit_vector * self.step_size)
-                    if (self.collisions[0].distance < (ball.vel.unit_vector * self.step_size).length):
-                        left_over_distance = ball.pos.distance(self.collisions[0].collision_point)
-                        ball.vel = self.collisions[0].calc_new_vel()
-                        ball.pos = self.collisions[0].collision_point - (ball.vel.unit_vector *  left_over_distance)
+        # for ball in self.objects:
+        #     if (len(active_collisions) > 0):
+        #         if (ball in [col.ball for col in active_collisions]):
+        #             # print(self.collisions[0].distance, ball.vel.unit_vector * self.step_size)
+        #             if (self.collisions[0].distance < (ball.vel.unit_vector * self.step_size).length):
+        #                 left_over_distance = ball.pos.distance(self.collisions[0].collision_point)
+        #                 ball.vel = self.collisions[0].calc_new_vel()
+        #                 ball.pos = self.collisions[0].collision_point - (ball.vel.unit_vector *  left_over_distance)
                 
-            ball.pos += ball.vel.unit_vector * self.step_size
+        #     ball.pos += ball.vel.unit_vector * self.step_size
             
 
             

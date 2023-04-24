@@ -3,7 +3,7 @@ import pygame
 from oneMoreBrickEngine import Ball, PhysicsEnvironment, Line
 import time
 import keyboard
-
+import random
 scaling = 1
 
 pygame.init()
@@ -21,9 +21,11 @@ circle1 = Ball(2, 5,  1, -1, 1, '1')
 circle2 = Ball(5, 6, -1, -1, 1, '2')      
 circle3 = Ball(4, 6)    
 line1 = Line([4,0], [4,2])
+ball_num = 100
+random_circles = [Ball(random.random() * sim_scaling, random.random() * sim_scaling, random.random() * 2 -1, random.random() * 2 - 1, random.random() * 0.2 + 0.1, str(i)) for i in range(ball_num)]
 # line1 = Line([2,5], [6,7])
 print(id(line1))
-environment = PhysicsEnvironment(sim_scaling, sim_scaling, [circle1], [line1])
+environment = PhysicsEnvironment(sim_scaling, sim_scaling, random_circles, [line1])
          
                                                        
                                                
@@ -78,7 +80,7 @@ while running:
                                                      
     if run_tick:
         environment.run_tick(time_delta)
-
+     
         
     for object in environment.objects:
         centre_on_screen = toScreenCoords((object.x, object.y))
