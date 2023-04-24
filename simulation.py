@@ -25,7 +25,7 @@ ball_num = 200
 random_circles = [Ball(random.random() * sim_scaling, random.random() * sim_scaling, random.random() * 2 -1, random.random() * 2 - 1, random.random() * 0.2 + 0.1, str(i)) for i in range(ball_num)]
 # line1 = Line([2,5], [6,7])
 print(id(line1))
-environment = PhysicsEnvironment(sim_scaling, sim_scaling, [circle1,circle2], [line1], 0.01)
+environment = PhysicsEnvironment(sim_scaling, sim_scaling, [circle1,circle2], [line1], 0.01, True)
          
                                                        
                                                

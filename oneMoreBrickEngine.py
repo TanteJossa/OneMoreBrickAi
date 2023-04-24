@@ -350,7 +350,12 @@ class PhysicsEnvironment():
         # for ball in self.objects:
         #     ball.vel_lines = []
         
-
+        if (self.calc_gravity):
+            for ball in self.objects:
+                ball.vel += (0, -1 * self.step_size)
+            self.collisions = []
+            self.calc_collisions()
+        
                 
         travelled_time = 0
 
