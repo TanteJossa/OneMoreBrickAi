@@ -17,19 +17,19 @@ clock = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 32)
                                             
          
-circle1 = Ball(2, 6,  1, -1, 1, '1')
+circle1 = Ball(4, 3,  1, -1, 2, '1')
 circle2 = Ball(6, 6, -1, 0, 1, '2')      
 circle3 = Ball(4, 6)    
-line1 = Line([4,0], [4,2])
+line1 = Line([4,0], [4,1.5])
 ball_num = 3
 random_circles = [Ball(random.random() * sim_scaling, random.random() * sim_scaling, random.random() * 2 -1, random.random() * 2 - 1, random.random() * 1 + 0.5, str(i)) for i in range(ball_num)]
 # line1 = Line([2,5], [6,7])
 print(id(line1))
-environment = PhysicsEnvironment(sim_scaling, sim_scaling, random_circles, [line1], 0.05, True, True)
+environment = PhysicsEnvironment(sim_scaling, sim_scaling, [circle1], [line1], 0.1, True)
          
                                                        
                                           
-        
+
 
                               
 

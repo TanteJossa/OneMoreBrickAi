@@ -479,17 +479,36 @@ class PhysicsEnvironment():
                     ball2.pos -= n * half_diff
     
     def fix_clipping(self):
+        fixed_a_clip = False
         for i in range(4):
-            self.fix_ball_clipping()
+            if (self.circle_collision):
+                
+                result = self.fix_ball_clipping()
+                if (result):
+                    fixed_a_clip = True
         
             for ball in self.objects:
                 for line in self.lines:
                     closest_point = line.closest_point(ball.pos)
+
+                    if (not line.point_on_line(closest_point)):
+                        distance_p1 = line.p1.distance(ball.pos)
+                        distance_p2 = line.p2.distance(ball.pos)
+                        if (distance_p1 < distance_p2):
+                            closest_point = line.p1
+                        else:
+                            closest_point = line.p2
+                        
                     distance = ball.pos.distance(closest_point)
                     if(distance < ball.radius):
                         diff = distance - ball.radius
                         n = Vector(closest_point - ball.pos).unit_vector
                         ball.pos += n * diff
+                        ball.vel = n * -1 * ball.vel.length
+                        if (not fixed_a_clip):
+                            fixed_a_clip = True
+        
+        return fixed_a_clip
             
     def run_tick(self, timestep=1):
         # self.collisions = []
@@ -498,11 +517,13 @@ class PhysicsEnvironment():
         # for ball in self.objects:
         #     ball.vel_lines = []
         
+        fix_clipping = self.fix_clipping()       
+        
         if (self.use_gravity):
             for ball in self.objects:
                 ball.vel += (0, -1 * self.step_size)
             
-        if (self.use_gravity or (self.circle_collision and len(active_collisions_old) > 0)):
+        if (self.use_gravity or (self.circle_collision and len(active_collisions_old) > 0) or fix_clipping):
             self.collisions = []
             self.calc_collisions()
                 
@@ -522,9 +543,8 @@ class PhysicsEnvironment():
 
             if (collision):
                 collisions_per_ball[collision.ball] += 1
-                if (collisions_per_ball[collision.ball] > self.step_size * 5000):
-                    ball.vel.y = 0
-                    ball.vel.x = 0
+                if (collisions_per_ball[collision.ball] > self.step_size * 10000):
+                    pass
                 else:
                     if (collision.time_left < self.step_size):
                         # the collision takes place in the current time step
@@ -547,6 +567,5 @@ class PhysicsEnvironment():
             for ball in self.objects:
                 ball.move_forward((self.step_size - travelled_time) * ball.vel.length)
 
-        self.fix_clipping()
 
         
