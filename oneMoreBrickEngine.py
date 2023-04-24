@@ -157,10 +157,9 @@ class Collision():
             collision_line = Line(self.touch_point, self.touch_point + collision_vec)
             
             p_1 = collision_line.closest_point(self.ball.pos)
-            p_c = collision_line.closest_point(self.collision_point)
-            p1_to_pc = Vector(p_1.x - p_c.x, p_1.y - p_c.y)
+            touch_to_p1 = Vector(self.touch_point.x - p_1.x, self.touch_point.y - p_1.y)
 
-            direction_point = self.ball.pos - 2 * p1_to_pc
+            direction_point = self.ball.pos - 2 * touch_to_p1
             
             new_vel = Vector(direction_point.x - self.collision_point.x, direction_point.y - self.collision_point.y)
         return new_vel.unit_vector * self.ball.vel.length
@@ -174,7 +173,9 @@ class Collision():
         return self.ball.pos.distance(self.collision_point)
     @property
     def time_left(self):
-        return self.distance/ self.ball.vel.length
+        if (self.ball.vel.length == 0):
+            return 0
+        return self.distance / self.ball.vel.length
         
 
 class Interaction():
@@ -257,8 +258,10 @@ class Interaction():
             ball_distance = ball_closest_on_line.distance(self.ball.pos)
             
             clostest_to_intersection_vec = Vector(p_intersection.x - ball_closest_on_line.x, p_intersection.y - ball_closest_on_line.y)
-
-            col_ratio = self.ball.radius / ball_distance
+            if (ball_distance == 0):
+                col_ratio = 1
+            else:
+                col_ratio = self.ball.radius / ball_distance
             
             touch_point = p_intersection - clostest_to_intersection_vec * col_ratio
 
@@ -353,12 +356,11 @@ class PhysicsEnvironment():
         if (self.calc_gravity):
             for ball in self.objects:
                 ball.vel += (0, -1 * self.step_size)
-            self.collisions = []
-            self.calc_collisions()
         
                 
         travelled_time = 0
-
+        collisions_per_ball = {}
+        collisions_per_ball = {ball: 0 for ball in self.objects}
         # change the balls movements and positions
         active_collisions : list[Collision] = list(filter(lambda col: col.time_left < self.step_size, self.collisions))
         while len(active_collisions) > 0:
@@ -368,18 +370,26 @@ class PhysicsEnvironment():
             
             # check if the new collision is more urgent
             collision = self.get_first_collision(ball)
-            
+        
+
+        
             if (collision):
+                if (collisions_per_ball[collision.ball] > self.step_size * 1000):
+                    ball.vel.y = 0
+                    ball.vel.x = 0
+                    
+                collisions_per_ball[collision.ball] += 1
+
                 if (collision.time_left < self.step_size):
                     # the collision takes place in the current time step
-
+                    print(collision)
                     active_collisions.append(collision)
                     active_collisions.sort(key=lambda x: x.time_left)
                 else:
                     # the collision takes place outside this timestep
                     self.collisions.append(collision)
                     self.collisions.sort(key=lambda x: x.time_left)
-                
+                    
             for ball in self.objects:
                 ball.move_forward(active_collisions[0].time_left * ball.vel.length)
             travelled_time += active_collisions[0].time_left
@@ -392,3 +402,6 @@ class PhysicsEnvironment():
             for ball in self.objects:
                 ball.move_forward((self.step_size - travelled_time) * ball.vel.length)
             
+        if (self.calc_gravity):
+            self.collisions = []
+            self.calc_collisions()
