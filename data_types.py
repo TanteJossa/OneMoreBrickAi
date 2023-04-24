@@ -215,6 +215,7 @@ class Vector():
 
     @property
     def length(self) -> Number:
+        """Speed of the vector"""
         return np.abs(math.hypot(self.x, self.y))
     
     @property

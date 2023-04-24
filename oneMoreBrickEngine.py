@@ -163,7 +163,7 @@ class Collision():
             direction_point = self.ball.pos - 2 * p1_to_pc
             
             new_vel = Vector(direction_point.x - self.collision_point.x, direction_point.y - self.collision_point.y)
-        return new_vel.unit_vector
+        return new_vel.unit_vector * self.ball.vel.length
         
         
     def __repr__(self):
@@ -172,7 +172,10 @@ class Collision():
     @property
     def distance(self):
         return self.ball.pos.distance(self.collision_point)
-    
+    @property
+    def time_left(self):
+        return self.distance/ self.ball.vel.length
+        
 
 class Interaction():
     """
@@ -270,6 +273,7 @@ class Interaction():
 
         self.collisions = list(filter(lambda x: x.is_valid(), self.collisions))
         if (len(self.collisions) > 0):
+            #because there is only 1 ball, it can be sorted on distance in stead of time left 
             self.collisions.sort(key=lambda x: x.distance)
            
             # print(self.collisions)
@@ -320,7 +324,7 @@ class PhysicsEnvironment():
 
         # sort the collsions
         if (len(self.collisions) != 0):            
-            self.collisions.sort(key=lambda x: x.distance)
+            self.collisions.sort(key=lambda x: x.time_left)
     
     def get_first_collision(self, ball: Ball) -> Collision:
         collisions = []
@@ -329,7 +333,8 @@ class PhysicsEnvironment():
             if (len(interaction.collisions) > 0):
                 collisions.append(interaction.collisions[0])
 
-        if (len(collisions) != 0):            
+        if (len(collisions) != 0):    
+            #because there is only 1 ball, it can be sorted on distance in stead of time left 
             collisions.sort(key=lambda x: x.distance)
             ball.vel_lines = []
             ball.vel_lines.append([ball.pos, collisions[0].collision_point] ) 
@@ -345,12 +350,12 @@ class PhysicsEnvironment():
         # for ball in self.objects:
         #     ball.vel_lines = []
         
-        
+
                 
-        travelled_distance = 0
+        travelled_time = 0
 
         # change the balls movements and positions
-        active_collisions : list[Collision] = list(filter(lambda col: col.distance < self.step_size, self.collisions))
+        active_collisions : list[Collision] = list(filter(lambda col: col.time_left < self.step_size, self.collisions))
         while len(active_collisions) > 0:
             ball = active_collisions[0].ball
             ball.vel = active_collisions[0].calc_new_vel()
@@ -360,25 +365,25 @@ class PhysicsEnvironment():
             collision = self.get_first_collision(ball)
             
             if (collision):
-                if (collision.distance < self.step_size):
+                if (collision.time_left < self.step_size):
                     # the collision takes place in the current time step
 
                     active_collisions.append(collision)
-                    active_collisions.sort(key=lambda x: x.distance)
+                    active_collisions.sort(key=lambda x: x.time_left)
                 else:
                     # the collision takes place outside this timestep
                     self.collisions.append(collision)
-                    self.collisions.sort(key=lambda x: x.distance)
+                    self.collisions.sort(key=lambda x: x.time_left)
                 
             for ball in self.objects:
-                ball.move_forward(active_collisions[0].distance)
-            travelled_distance += active_collisions[0].distance
+                ball.move_forward(active_collisions[0].time_left * ball.vel.length)
+            travelled_time += active_collisions[0].time_left
             if (active_collisions[0] in self.collisions):
                 self.collisions.remove(active_collisions[0])
             if (active_collisions[0] in active_collisions):
                 active_collisions.remove(active_collisions[0])
 
-        if (travelled_distance < self.step_size):
+        if (travelled_time < self.step_size):
             for ball in self.objects:
-                ball.move_forward(self.step_size - travelled_distance)
+                ball.move_forward((self.step_size - travelled_time) * ball.vel.length)
             
