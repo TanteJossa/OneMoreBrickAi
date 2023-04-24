@@ -13,11 +13,12 @@
 """
 
 import numpy as np
-from numbers import Number
 from typing import Union, Any
 import math
 import copy
 from data_types import *
+
+Number = Union[int, float]
 
 class MovingObject():
     """
@@ -417,6 +418,8 @@ class PhysicsEnvironment():
         self.calc_collisions()
     
     def calc_collisions(self):
+        self.collisions = []
+
         # # ball interactions
         # if self.circle_collision:
         #     # every pair exists once
@@ -446,12 +449,13 @@ class PhysicsEnvironment():
     def get_first_collision(self, ball: Ball) -> Collision:
         collisions = []
         
-        for ball2 in self.objects:
-            if (ball != ball2):
-                interaction = BallBallInteraction(ball,ball2)
-                if (len(interaction.collisions) > 0):
-                    collisions.append(interaction.collisions[0])
-        
+        if (self.circle_collision):
+            for ball2 in self.objects:
+                if (ball != ball2):
+                    interaction = BallBallInteraction(ball,ball2)
+                    if (len(interaction.collisions) > 0):
+                        collisions.append(interaction.collisions[0])
+            
         # line interactions
         for line in self.lines:
             interaction = BallLineInteraction(ball,line)
@@ -517,16 +521,17 @@ class PhysicsEnvironment():
         # for ball in self.objects:
         #     ball.vel_lines = []
         
-        fix_clipping = self.fix_clipping()       
+        
         
         if (self.use_gravity):
             for ball in self.objects:
                 ball.vel += (0, -1 * self.step_size)
             
-        if (self.use_gravity or (self.circle_collision and len(active_collisions_old) > 0) or fix_clipping):
-            self.collisions = []
+        if (self.use_gravity or (self.circle_collision and len(active_collisions_old) > 0)):
+            fix_clipping = self.fix_clipping()       
             self.calc_collisions()
-                
+
+        
         travelled_time = 0
         collisions_per_ball = {}
         collisions_per_ball = {ball: 0 for ball in self.objects}
