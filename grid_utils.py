@@ -1,10 +1,10 @@
 """
-This module provides functions for working with a grid of integers and finding groups of connected values.
+This module provides functions for working with a grid of Numbers and finding groups of connected values.
 
 The main functions provided by this module are:
 
-    - check_validity_grid(grid): Checks if the given grid is a valid 2D list of integers with 8 rows and 7 columns.
-    - find_groups(grid, num_rows, num_cols): Finds all groups of connected values (integers greater than 0) in the given grid.
+    - check_validity_grid(grid): Checks if the given grid is a valid 2D list of Numbers with 8 rows and 7 columns.
+    - find_groups(grid, num_rows, num_cols): Finds all groups of connected values (Numbers greater than 0) in the given grid.
 
 The find_groups function uses a recursive depth-first search algorithm to traverse the grid and find groups of connected values;
 It returns a list of lists of tuples representing the positions of each value in each group.
@@ -28,16 +28,18 @@ Example usage:
 
 Note: This program assumes that integers greater than 0 should be grouped together.
 
-The module does not require any dependencies to be installed.
+The module does require the numbers library.
 """
 
+from numbers import Number
 
-def check_validity_grid(grid: list[list[int]]) -> bool:
+
+def check_validity_grid(grid: list[list[Number]]) -> bool:
     """
     Check if the given grid is valid.
 
     Args:
-        - grid (list[list[int]]): A 2D list representing the grid.
+        - grid (list[list[Number]]): A 2D list representing the grid.
 
     Returns:
         - A boolean indicating whether the grid is valid (i.e. has the correct number of rows and columns).
@@ -62,18 +64,18 @@ def check_validity_grid(grid: list[list[int]]) -> bool:
 
     return True
 
-def find_groups(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> list[list[tuple[int, int]]]:
+def find_groups(grid: list[list[Number]], num_rows: int=8, num_cols: int=7) -> list[list[tuple[Number, Number]]]:
     """
     Finds all groups of connected blocks in the provided grid that have values larger than 0.
         Uses depth-first search (dfs) algorithm to recursively search for connected blocks.
     
     Args:
-        - grid (list[list[int]]): A 2D list representing the grid to search for connected blocks.
+        - grid (list[list[Number]]): A 2D list representing the grid to search for connected blocks.
         - num_rows (int)=8: The number of rows in the grid.
         - num_cols (int)=7: The number of columns in the grid.
     
     Returns:
-        list[list[tuple[int, int]]]: A list of lists, where each inner list represents a group of connected blocks.
+        list[list[tuple[Number, Number]]]: A list of lists, where each inner list represents a group of connected blocks.
             Each block is represented as a tuple of its row and column indices in the grid.
 
     Note: If the given grid is not an 8x7 grid it will give an error.
@@ -108,7 +110,7 @@ def find_groups(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> list
     for i in range(num_rows):
         for j in range(num_cols):
             # if the position contains a 1 and has not been visited, find the connected group of 1's using dfs
-            if grid[i][j] > 0 and (i, j) not in visited:
+            if grid[i][j] > 0 and (i, j) not in visited: # type: ignore
                 group = []
                 dfs(i, j, group)
                 groups.append(group)
@@ -139,16 +141,16 @@ def convert_block_to_points(block: tuple) -> list[tuple]:
     return points
 
 
-def find_outside_points(groups: list[list[tuple[int, int]]]) -> list[list[tuple[int]]]:
+def find_outside_points(groups: list[list[tuple[Number, Number]]]) -> list[list[tuple[Number, Number]]]:
     """
     Takes a list of connected blocks and returns a list of points that are on the outside.
 
     Args:
-        groups (list[list[tuple[int]]]): A list of lists, where each inner list represents a group of connected blocks.
+        groups (list[list[tuple[Number, Number]]]): A list of lists, where each inner list represents a group of connected blocks.
             Each block is represented as a tuple of its row and column indices in the grid.
 
     Returns:
-        list[list[tuple[int]]]: A list of lists, where each inner list represents a group of end points.
+        list[list[tuple[Number]]]: A list of lists, where each inner list represents a group of end points.
             Each outside point is represented as a tuple of its row and column indices in the grid.
                 with the rows from 0-8 (inclusive) and the columns going from 0-7 (inclusive).
     """
@@ -177,36 +179,20 @@ def find_outside_points(groups: list[list[tuple[int, int]]]) -> list[list[tuple[
                     seen_dict[point] += 1
                 
         # If there is a duplicate point, that point cannot be in the filtered group
-        filtered_group = [tup for tup in seen_dict if seen_dict[tup] == 1]
+        filtered_group = [tup for tup in seen_dict if seen_dict[tup] == 1 or seen_dict[tup] == 3]
         filtered_groups.append(filtered_group)
 
     return filtered_groups
 
 
+def make_lines(end_points: list[list[tuple[Number, Number]]]) -> list[tuple[tuple[Number, Number], tuple[Number, Number]]]:
+    """
+    Makes a list of lines that can be used to draw on the grid.
 
-# TESTING CODE
-from time import time
+    Args:
 
-# suppose this is the 8x7 grid as a list of lists, in which each inner list represents a row
-grid = [
-    [2, 3, 0, 0, 1, 3, 0],
-    [4, 8, 0, 0, 0, 2, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 2, 8, 0],
-    [9, 3, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0]
-]
+    Returns:
+        list[tuple[tuple[Number, Number], tuple[Number, Number]]]: A list of lines that can be used to draw the grid.
+    """
 
-num_rows = len(grid)
-num_columns = len(grid[0])
-
-
-t_0 = time()
-groups = find_groups(grid=grid, num_rows=num_rows, num_cols=num_columns)
-
-for group in groups:
-    print(group)
-t_1 = time()
-print(t_1-t_0)
+    return  # type: ignore
