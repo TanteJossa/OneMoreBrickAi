@@ -308,7 +308,7 @@ class Line():
         dx, dy = x2-x1, y2-y1
         det = dx*dx + dy*dy 
         num = (dy*(y3-y1)+dx*(x3-x1))
-        # print(det, num)
+
         if (math.isnan(det) or math.isnan(num) or det == 0 or num == 0):
             a = 0
         else:
