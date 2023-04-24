@@ -1,3 +1,17 @@
+"""
+    This is the main engine of the game.
+    It is responsible for the following:
+    - Collision detection
+    - Moving objects
+    
+    Classes
+    - Ball
+    - MovingObject
+    - PhyisicsEnvoironment
+    
+    Author: Merc4tor
+"""
+
 import numpy as np
 from numbers import Number
 from typing import Union, Any
@@ -6,7 +20,21 @@ import copy
 from data_types import *
 
 class MovingObject():
+    """
+        MovingObject class
+        Properties:
+        - pos: Point
+        - vel: Vector
+        
+        Methods:
+            - move_forward
+    """
     def __init__(self,x: Number=0, y: Number=0, vx: Number=0, vy: Number=0) -> None:
+        """
+            Constructor
+            - pos: Point
+            - vel: Vector
+        """
         self.pos = Point(x, y)
         self.vel = Vector(vx, vy)
         pass
@@ -38,7 +66,28 @@ class MovingObject():
         self.vel[1] = vy
         
 class Ball(MovingObject):
+    """ 
+        Ball class
+        Properties:
+        - pos: Point
+        - vel: Vector
+        - radius: Number
+        - id: String
+        
+        Methods:
+            - move_forward
+    """
+    
     def __init__(self, x: Number=0, y: Number=0, vx: Number=0, vy: Number=0, radius: Number=1, id="-1") -> None:
+        """
+        Constructor
+        - x: x position
+        - y: y position
+        - vx: x velocity
+        - vy: y velocity
+        - radius: radius of the ball
+        - id: id of the ball
+        """
         super().__init__(x, y, vx, vy)
         self.radius = radius
         self.vel_lines = []
@@ -46,6 +95,10 @@ class Ball(MovingObject):
         pass
     
     def move_forward(self, distance: Number=0):
+        """
+            Move the ball forward
+            - distance: distance to move along velocity
+        """
         self.pos += self.vel.unit_vector * distance
 
         pass
@@ -54,6 +107,22 @@ class Ball(MovingObject):
         return f"Ball(pos: {self.pos}, vel: {self.vel.unit_vector})"
 
 class Collision():
+    """
+    Collision class
+    Properties:
+        - ball: Ball
+        - line: Line
+        - collision_point: Point
+        - touch_point: Point
+        - touch_point: Point
+        - type: str
+        - distance: Number
+        
+    Methods:
+        - is_valid
+        - calc_new_vel
+    """
+    
     def __init__(self, ball: Ball, line: Line, collision_point: Point, touch_point: Point, type: str='line') -> None:
         self.ball = ball
         self.line = line
@@ -68,6 +137,17 @@ class Collision():
         return not (-1 * self.ball.vel).point_in_quadrant(relative_collision_point)
     
     def calc_new_vel(self):
+        """
+            Calculate the new velocity of the ball after the collision
+            - return: Vector of the new velocity of the ball after the collision.
+            - The new velocity is calculated by the following formula:
+            - if the collision is with a point:
+                - the new velocity is the point between the touch point and the collision point
+            - if the collision is with a line:
+                - look at the function
+        """
+        
+        
         # the line between the touch point and the collision point flipped by 90 degrees
         
         if (self.type == 'point'):
@@ -95,19 +175,47 @@ class Collision():
     
 
 class Interaction():
+    """
+    Interaction between a line a a ball
+    Properties:
+        - ball: Ball
+        - line: Line
+        - collisions: Collision
+            - Sorted by the distance
+            - The first collision is the closest one
+    
+    Methods:
+        - calc_collisions
+    """
     def __init__(self, ball: Ball, line: Line) -> None:
+        """
+        Constructor
+        - ball: Ball
+        - line: Line
+        
+        The constructor automatically calculates the collisions
+        """
         self.ball = ball
         self.line = line
-        self.is_colliding = False
-        self.collision: Collision
         self.collisions: list[Collision] = []
-        self.calc_collision()
+        self.calc_collisions()
 
     
     def __repr__(self):
-        return 'Interaction(ball: '+self.ball.id+', line: '+str(id(Line))+' , collided: '+str(self.is_colliding)+', collisions: '+ str(self.collisions)+')'
+        return 'Interaction(ball: '+self.ball.id+', line: '+str(id(Line))+', collisions: '+ str(self.collisions)+')'
         
-    def calc_collision(self):
+    def calc_collisions(self):
+        """
+            Calculate the collisions between a line and a ball
+            The collision is calculated by the following formula:
+            - if the ball touches an edge point on his way:
+                - the collision point is the point on the movement line that has the distance of the radius to the edge point
+                - the touch point is the edge point
+            - if the ball touches a line on his way:
+                - the collision point is the point between the ball and the line
+                - the touch point is the line 
+        """        
+        
         # a vector line
         ball_movement_line = Line(self.ball.pos, self.ball.pos + self.ball.vel)
         # print(ball_movement_line)
@@ -146,15 +254,11 @@ class Interaction():
             ball_distance = ball_closest_on_line.distance(self.ball.pos)
             
             clostest_to_intersection_vec = Vector(p_intersection.x - ball_closest_on_line.x, p_intersection.y - ball_closest_on_line.y)
-            
-            
+
             col_ratio = self.ball.radius / ball_distance
             
             touch_point = p_intersection - clostest_to_intersection_vec * col_ratio
-            
-    
-            
-            
+
             if (self.line.point_on_line(touch_point)):
                 # line collision
                 distance_touch_to_intersection = touch_point.distance(p_intersection)
@@ -167,19 +271,44 @@ class Interaction():
         self.collisions = list(filter(lambda x: x.is_valid(), self.collisions))
         if (len(self.collisions) > 0):
             self.collisions.sort(key=lambda x: x.distance)
-            self.is_colliding = True
            
             # print(self.collisions)
 
 class PhysicsEnvironment():
-    def __init__(self, sizex, sizey, objects=[], lines=[], step_size=0.005) -> None:
+    """
+    The physics environment
+    Properties:
+        - size: list[int]
+        - objects: list[Ball]
+        - lines: list[Line]
+        - collisions: list[Collision]
+        - step_size: float
+    
+    Methods:
+        - calc_collisions
+        - get_first_collision
+        - run_tick
+    
+    """
+    
+    def __init__(self, sizex, sizey, objects=[], lines=[], step_size=0.005, calc_gravity:bool=False) -> None:
+        """
+        Constructor
+        - sizex: int
+        - sizey: int
+        - objects: list[Ball]
+        - lines: list[Line]
+        - step_size: float
+        
+        The constructor automatically calculates the collisions
+        """        
         self.step_size = step_size
         self.size : list = [sizex, sizey]
         self.objects :list[Ball] = objects
         self.lines : list[Line] = lines
         self.lines += [Line([0,0], [sizex, 0]), Line([sizex, 0], [sizex, sizey]), Line([sizex, sizey], [0, sizey]), Line([0, sizey], [0, 0]), ]
         self.collisions: list[Collision] = []
-        self.max_collision_per_tick = 3
+        self.calc_gravity = calc_gravity
         self.calc_collisions()
     
     def calc_collisions(self):
@@ -216,7 +345,7 @@ class PhysicsEnvironment():
         # for ball in self.objects:
         #     ball.vel_lines = []
         
-
+        
                 
         travelled_distance = 0
 
@@ -253,24 +382,3 @@ class PhysicsEnvironment():
             for ball in self.objects:
                 ball.move_forward(self.step_size - travelled_distance)
             
-        # for ball in self.objects:
-        #     if (len(active_collisions) > 0):
-        #         if (ball in [col.ball for col in active_collisions]):
-        #             # print(self.collisions[0].distance, ball.vel.unit_vector * self.step_size)
-        #             if (self.collisions[0].distance < (ball.vel.unit_vector * self.step_size).length):
-        #                 left_over_distance = ball.pos.distance(self.collisions[0].collision_point)
-        #                 ball.vel = self.collisions[0].calc_new_vel()
-        #                 ball.pos = self.collisions[0].collision_point - (ball.vel.unit_vector *  left_over_distance)
-                
-        #     ball.pos += ball.vel.unit_vector * self.step_size
-            
-
-            
-            
-            
-
-
-
-     
-    
-        

@@ -1,3 +1,14 @@
+"""
+    This file contains the data types used in the project.
+    The data types are:
+        - Point
+        - Line
+        - Vector
+        
+    Author: Merc4tor
+"""
+
+
 import numpy as np
 from numbers import Number
 from typing import Union, Any
@@ -5,7 +16,25 @@ import math
 import copy
 
 class Point():
+    """
+    A point in 2D space.
+    
+    Properties:
+        - pos: np.ndarray, position of the point
+        
+    Methods:
+        - distance(p: Point): float, distance between the point and p
+        
+    """
+    
     def __init__(self, x, y) -> None:
+        """
+        Initialize a point.
+        
+        :param x: x-coordinate
+        :param y: y-coordinate
+        """
+        
         self.pos = np.array([float(x), float(y)])
     
     def __call__(self) -> np.ndarray:
@@ -72,7 +101,26 @@ class Point():
         return self / other
 
 class Vector():
+    """
+    Vector class
+    
+    Properties:
+        - value: np.ndarray, vector value
+        
+    Methods:
+        - point_in_quadrant(point: Point): bool, check if a point is in a quadrant
+    """
+    
     def __init__(self, x: Number | Point, y: Number=0) -> None:
+        """
+        Vector class
+        :param x: x coordinate
+        :param y: y coordinate
+        :return: None
+        
+        """
+        
+        
         if type(x) == Point:     
             y = x[1]
             x = x[0]
@@ -82,6 +130,12 @@ class Vector():
         self.value = np.array([x, y])
 
     def point_in_quadrant(self, point):
+        """
+        Check if a point is in a quadrant
+        :param point: Point to check
+        :return: True if point is in a quadrant
+        """
+        
         a, b = self.value
         x, y = point
         
@@ -168,7 +222,31 @@ class Vector():
         return self / self.length
       
 class Line():
+    """
+    Line is a 2D line defined by two points.
+    
+    Properties:
+        - p1: Point, the first point on the line.
+        - p2: Point, the second point on the line.
+        - slope: Number, the slope of the line.
+        - length: Number, the length of the line.
+
+    Methods:
+        - unit_vector: Vector, the unit vector of the line.
+        - closest_point_to(point: Point): Point, the closest point to the line.
+        - intersection_point(line: Line): Point, the intersection of the two lines.
+        - point_on_line(point: Point): bool, check if a point is on the line.
+    """
+    
     def __init__(self, p1: Point, p2: Point) -> None:
+        """
+        Creates a line.
+        
+        :param p1: the first point on the line.
+        :type p1: Point
+        :param p2: the second point on the line.
+        :type p2: Point
+        """
         self.type = 'line'
         if type(p1) != Point:
             p1 = Point(p1[0], p1[1])
@@ -194,8 +272,15 @@ class Line():
     def length(self) -> Number:
         return self.p1.distance(self.p2)
     
+    # don't know why you would ever need this, but it's here
     @property
     def unit_vector(self) -> np.ndarray:
+        """
+        Returns the unit vector of the line.
+        :return: the unit vector of the line.
+        :rtype: np.ndarray
+        """
+        
         return self.vec.value / self.length
     
     @property
@@ -210,6 +295,14 @@ class Line():
     
     
     def closest_point(self, p: Point):
+        """
+        Returns the closest point on the line to a given point.
+        
+        :param p: the point to find the closest point to.
+        :type p: Point
+        :return: the closest point on the line to the given point.
+        :rtype: Point
+        """
         (x1, y1), (x2, y2), (x3, y3) = self.p1.pos, self.p2.pos, p.pos
         dx, dy = x2-x1, y2-y1
         det = dx*dx + dy*dy 
@@ -223,6 +316,32 @@ class Line():
         return Point(x1+a*dx, y1+a*dy)
     
     def intersection_point(self, line: 'Line') -> Point:
+        """
+        Returns the intersection point of two lines.
+        If the lines are parallel, returns False.
+        If the lines are coincident, returns the point.
+        
+        :param line: the line to intersect with.
+        :type line: Line
+        :return: the intersection point.
+        :rtype: Point
+        
+        >>> line1 = Line((0,0), (1,1))
+        >>> line2 = Line((1,1), (2,2))
+        >>> line1.intersection_point(line2)
+        False
+        
+        >>> line1 = Line((0,0), (1,1))
+        >>> line2 = Line((1,1), (1,2))
+        >>> line1.intersection_point(line2)
+        False
+        
+        >>> line1 = Line((0,0), (2,2))
+        >>> line2 = Line((0,2), (2,0))
+        >>> line1.intersection_point(line2)
+        Point(1.0, 1.0)
+        """
+        
         (x1,y1), (x2,y2), (x3,y3), (x4,y4) = self.p1, self.p2, line.p1, line.p2
         det = (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4)
         if det != 0:
@@ -232,28 +351,6 @@ class Line():
             return Point(px, py)
         else:
             return False
-
-    def intersection(self, line: 'Line'):
-        x1, y1 = self.p1
-        x2, y2 = self.p2
-        x3, y3 = line.p1
-        x4, y4 = line.p2
-
-        # Calculate the slopes and y-intercepts of the two lines
-        m1 = (y2 - y1) / (x2 - x1)
-        b1 = y1 - m1 * x1
-        m2 = (y4 - y3) / (x4 - x3)
-        b2 = y3 - m2 * x3
-
-        # Check if the lines are parallel
-        if m1 == m2:
-            return None
-
-        # Calculate the intersection point
-        x = (b2 - b1) / (m1 - m2)
-        y = m1 * x + b1
-
-        return x, y
 
     
     def point_on_line(self, point: Point) -> bool:
