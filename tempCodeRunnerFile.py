@@ -26,3 +26,5 @@ for group in x:
             print(line)
 t_1 = time()
 print(t_1-t_0)
+
+print(x)

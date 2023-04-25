@@ -67,38 +67,38 @@ def convert_to_line(point: tuple[int, int], type: int) -> tuple[tuple[tuple[int,
     
     # if the object is a square
     if type == 1:
-        up_left = (point[0] + 1, point[1])
-        up_right = (point[0] + 1, point[1] + 1)
+        up_left = (7 - point[0] + 1, point[1])
+        up_right = (7 - point[0] + 1, point[1] + 1)
         down_left = (point[0], point[1])
         down_right = (point[0], point[1] + 1)
         return ((up_left, up_right), (up_right, down_right), (down_right, down_left), (down_left, up_left)) # type: ignore (this is a square)
     
     # if the object is a triangle with the upper-right corner empty
     elif type == 2:
-        up_left = (point[0] + 1, point[1])
-        down_left = (point[0], point[1])
-        down_right = (point[0], point[1] + 1)
+        up_left = (7 - point[0] + 1, point[1])
+        down_left = (7 - point[0], point[1])
+        down_right = (7 - point[0], point[1] + 1)
         return ((up_left, down_right), (down_right, down_left), (down_left, up_left))
     
     # if the object is a triangle with the bottom-right corner empty
     elif type == 3:
-        up_left = (point[0] + 1, point[1])
-        up_right = (point[0] + 1, point[1] + 1)
-        down_left = (point[0], point[1])
+        up_left = (7 - point[0] + 1, point[1])
+        up_right = (7 - point[0] + 1, point[1] + 1)
+        down_left = (7 - point[0], point[1])
         return ((up_left, up_right), (up_right, down_left), (down_left, up_left))
 
     # if the object is a triangle with the upper-left corner empty
     elif type == 4:
-        down_left = (point[0], point[1])
-        up_right = (point[0] + 1, point[1] + 1)
-        down_right = (point[0] + 1, point[1])
+        down_left = (7 - point[0], point[1])
+        up_right = (7 - point[0] + 1, point[1] + 1)
+        down_right = (7 - point[0] + 1, point[1])
         return ((down_left, up_right), (up_right, down_right), (down_right, down_left))
     
     # if the object is a triangle with the bottom-left corner empty
     elif type == 5:
-        up_left = (point[0] + 1, point[1])
-        up_right = (point[0] + 1, point[1] + 1)
-        down_right = (point[0], point[1] + 1)
+        up_left = (7 - point[0] + 1, point[1])
+        up_right = (7 - point[0] + 1, point[1] + 1)
+        down_right = (7 - point[0], point[1] + 1)
         return ((up_left, up_right), (up_right, down_right), (down_right, up_left))
     
     # if the object is a circle
