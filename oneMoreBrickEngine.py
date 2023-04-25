@@ -573,7 +573,6 @@ class PhysicsEnvironment():
         active_actions = active_collisions + active_spawnings
         active_actions.sort(key=lambda x: x.time_left)
 
-        print(active_actions)
         while len(active_actions) > 0:
             travelled_time += active_actions[0].time_left
 
