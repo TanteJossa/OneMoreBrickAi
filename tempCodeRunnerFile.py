@@ -1,6 +1,6 @@
 # TESTING CODE
 from time import time
-from grid_utils_v2 import convert_grid
+from grid_utils import convert_grid
 
 # suppose this is the 8x7 grid as a list of lists, in which each inner list represents a row
 grid = [
