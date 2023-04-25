@@ -423,6 +423,7 @@ class PhysicsEnvironment():
         self.use_gravity = use_gravity
         self.circle_collision = circle_collision
         self.collision_efficiency = collision_efficiency
+        self.active_collisions_old = []
         self.game = game
         self.calc_collisions()
     
@@ -552,7 +553,7 @@ class PhysicsEnvironment():
             for ball in self.objects:
                 ball.vel += (0, -1 * self.step_size * timestep)
             
-        if (self.use_gravity or (self.circle_collision and len(active_collisions_old) > 0)):
+        if (self.use_gravity or (self.circle_collision and len(self.active_collisions_old) > 0)):
             fix_clipping = self.fix_clipping()       
             self.calc_collisions()
 
@@ -563,7 +564,7 @@ class PhysicsEnvironment():
         
         # change the balls movements and positions
         active_collisions : list[Collision] = list(filter(lambda col: col.time_left < self.step_size * timestep, self.collisions))
-        active_collisions_old = copy.deepcopy(active_collisions)
+        self.active_collisions_old = copy.deepcopy(active_collisions)
         
         if (self.game.last_shot_ball == None and self.game.round_state == 'shooting'):
             self.spawnings = [BallSpawning(i * 2.5 * (self.game.shoot_ball_size / self.game.ball_speed)) for i in range(self.game.ball_amount)]
@@ -574,8 +575,7 @@ class PhysicsEnvironment():
         active_actions.sort(key=lambda x: x.time_left)
 
         while len(active_actions) > 0:
-            travelled_time += active_actions[0].time_left
-
+            
             if (type(active_actions[0]) == BallSpawning):
                 ball = self.shoot_ball()
                 collisions_per_ball[ball] = 0
@@ -614,7 +614,7 @@ class PhysicsEnvironment():
                         else:
                             self.collisions.append(collision)
                             active_actions = self.calc_active_actions(timestep, travelled_time)
-
+            travelled_time += active_actions[0].time_left
 
             for ball in self.objects:
                 ball.move_forward(active_actions[0].time_left * ball.vel.length)
@@ -622,14 +622,15 @@ class PhysicsEnvironment():
             for spawning in self.spawnings:
                 spawning.time_left -= active_actions[0].time_left
             
-            if (active_actions[0] in self.collisions):
-                self.collisions.remove(active_actions[0])
+            if (len(active_actions) > 0):
+                if (active_actions[0] in self.collisions):
+                    self.collisions.remove(active_actions[0])
 
-            if (active_actions[0] in self.spawnings):
-                self.spawnings.remove(active_actions[0])
-                
-            if (active_actions[0] in active_actions):
-                active_actions.remove(active_actions[0])
+                if (active_actions[0] in self.spawnings):
+                    self.spawnings.remove(active_actions[0])
+                    
+                if (active_actions[0] in active_actions):
+                    active_actions.remove(active_actions[0])
 
         if (travelled_time < self.step_size * timestep):
             movement_time_left = (self.step_size * timestep - travelled_time)
