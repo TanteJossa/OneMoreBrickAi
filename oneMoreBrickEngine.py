@@ -573,9 +573,10 @@ class PhysicsEnvironment():
         active_actions = active_collisions + active_spawnings
         active_actions.sort(key=lambda x: x.time_left)
 
-        
+        print(active_actions)
         while len(active_actions) > 0:
-            
+            travelled_time += active_actions[0].time_left
+
             if (type(active_actions[0]) == BallSpawning):
                 ball = self.shoot_ball()
                 collisions_per_ball[ball] = 0
@@ -622,7 +623,6 @@ class PhysicsEnvironment():
             for spawning in self.spawnings:
                 spawning.time_left -= active_actions[0].time_left
             
-            travelled_time += active_actions[0].time_left
             if (active_actions[0] in self.collisions):
                 self.collisions.remove(active_actions[0])
 
