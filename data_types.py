@@ -239,7 +239,7 @@ class Line():
         - point_on_line(point: Point): bool, check if a point is on the line.
     """
     
-    def __init__(self, p1: Point, p2: Point) -> None:
+    def __init__(self, p1: Point, p2: Point, id:str="-1", grid_cell:Point=None) -> None:
         """
         Creates a line.
         
@@ -254,6 +254,9 @@ class Line():
         if type(p2) != Point:
             p2 = Point(p2[0], p2[1])
         self.p1, self.p2 = p1, p2
+        self.id = id
+        self.grid_cell = grid_cell
+        
     def __repr__(self):
         return f"Line({self.p1}, {self.p2})"
     
