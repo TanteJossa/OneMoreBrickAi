@@ -29,7 +29,7 @@ class BallSpawning:
     
 
 class Renderer:
-    def __init__(self, screenx, screeny, sim_width, sim_height, environment: PhysicsEnvironment) -> None:
+    def __init__(self, screenx, screeny, sim_width, sim_height) -> None:
         self.screen_width = screenx
         self.screen_height = screeny
         self.sim_width = sim_width
@@ -41,7 +41,6 @@ class Renderer:
         self.toScreenCoords = None
         self.toSimCoords = None
         
-        self.environment = environment
         
         self.screen : pygame.display = pygame.display.set_mode((screenx, screeny), pygame.RESIZABLE)
         pygame.display.flip()
@@ -50,10 +49,6 @@ class Renderer:
         self.font = pygame.font.Font('freesansbold.ttf', 32)
         self.time_delta = 1       
     
-    def shoot_balls(self) -> None:
-        vel = Vector(random.random() * 5.0 - 10, 1.0).unit_vector
-        self.environment.objects += [Ball(5, 2, vel.x, vel.y, 1)]
-        self.environment.calc_collisions()
     def draw_circle(self, pos: Point, radius: Number, color: Color) -> None:
         pygame.draw.circle(self.screen, color, self.toScreenCoords(pos), radius * self.screen_scaling)
     
@@ -61,12 +56,21 @@ class Renderer:
         pygame.draw.line(self.screen, color, self.toScreenCoords(p1), self.toScreenCoords(p2), 2)
     
     def draw_rectangle(self, p1: Point, p2: Point, color: Color) -> None:
+        p1 = self.toScreenCoords(p1)
+        p2 = self.toScreenCoords(p2)
         rect = pygame.rect.Rect(min(p1[0], p2[0]), min(p2[1], p1[1]), np.abs(p2[0] - p1[0]), np.abs(p2[1] - p1[1]))
         pygame.draw.rect(self.screen, color, rect)
     
     def get_screen_size(self) -> tuple[int, int]:
         return pygame.display.get_surface().get_size()
     
+    def draw_text(self, pos=(0,0), text="", color=(255, 255, 255)):
+        pos = self.toScreenCoords(pos)
+        rendered_text = self.font.render(str(text), True, color)
+        text_rect = rendered_text.get_rect()
+        text_rect.center = (pos[0], pos[1])
+        self.screen.blit(rendered_text, text_rect)
+
     def update_screen(self) -> None:
         start_time = time.time()     
             
@@ -96,8 +100,8 @@ class Renderer:
         # rendering
         self.screen.fill((0, 0, 0))
         
-        origin_point = self.toScreenCoords((0,0))  
-        top_right = self.toScreenCoords((self.sim_width, self.sim_height))
+        origin_point = (0,0)  
+        top_right = (self.sim_width, self.sim_height)
 
         self.draw_rectangle(origin_point, top_right, (100, 100, 100))
 
@@ -117,16 +121,6 @@ class Renderer:
                     
                     # self.coord1 = None
                     # self.coord2 = None
-                    
-  
-        for object in self.environment.objects:
-            self.draw_circle(object.pos, object.radius, (0, 0, 255))
-
-            for vel_arrow in object.vel_lines:
-                self.draw_line(vel_arrow[0], vel_arrow[1], (255, 0, 0))
-                
-        for line in self.environment.lines:
-            self.draw_line(line.p1, line.p2, (0, 0, 0))
 
         fps = self.font.render(str(round(1 / self.time_delta)), True, (255, 255, 255))
         textRect = fps.get_rect()
@@ -134,16 +128,18 @@ class Renderer:
         self.screen.blit(fps, textRect)
 
 
+        # pygame.display.flip()
 
-        pygame.display.flip()
         end_time = time.time()
         self.time_delta = end_time - start_time + 0.001
         
         return events
-        
+    
+    def show_changes(self):
+        pygame.display.flip()
 
         
-
+        
 class GridCell:
     def __init__(self, value: Number=0, type: Number=0) -> None:
         """
@@ -172,6 +168,9 @@ class GridCell:
         """
         self.value = value
         self.type = type
+    
+    def __repr__(self):
+        return f'GridCell(value={self.value}, type={self.type})'
     
     @property
     def is_collidable(self) -> bool:
@@ -206,10 +205,35 @@ class Game:
         self.start_time = time.time()
         
         self.environment = PhysicsEnvironment(self.grid_size.x, self.grid_size.y, step_size=10)
-        self.renderer = Renderer(500, 400, self.grid_size.x, self.grid_size.y, self.environment)
+        self.renderer = Renderer(500, 400, self.grid_size.x, self.grid_size.y)
     
     def render_game(self) -> pygame.event.Event:
-        return self.renderer.update_screen()
+        events = self.renderer.update_screen()
+
+        rows = int(self.grid_size[1]) - 1
+
+        for row_index, row in enumerate(self.grid):
+            for cell_index, cell in enumerate(row):
+                if (cell.type == 1):
+                    bottom_left = (cell_index+0.01, rows - row_index +0.01)
+                    top_right = (cell_index + 1 - 0.01, rows - row_index + 1 - 0.01)
+                    color = (0, 255, 255)
+                    self.renderer.draw_rectangle(bottom_left, top_right, color)
+                    self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), cell.value,(0,0,0))
+                
+        
+        for object in self.environment.objects:
+            self.renderer.draw_circle(object.pos, object.radius, (0, 0, 255))
+
+            for vel_arrow in object.vel_lines:
+                self.renderer.draw_line(vel_arrow[0], vel_arrow[1], (255, 0, 0))
+                
+        for line in self.environment.lines:
+            self.renderer.draw_line(line.p1, line.p2, (0, 0, 0))
+
+        self.renderer.show_changes()
+
+        return events
     
     def calculate_lines(self) -> None:
         pass
@@ -248,7 +272,12 @@ class Game:
 
     def spawn_blocks(self):
         # pattern = self.spawn_patterns[random.random() * len(self.spawn_patterns)]
-        new_row = [GridCell((random.random() * 3 + 1) * self.level, 1) for _ in range(int(self.grid_size[0]))]
+        index_list = [i for i in range(int(self.grid_size[0]))]
+        number_of_blocks = int(round(random.random() * (self.grid_size[0] - 1) + 1))
+        chosen_indexes = random.sample(index_list, number_of_blocks)
+        
+        
+        new_row = [GridCell((1 if i in chosen_indexes else 0) * int(random.random() * 3 + 1) * self.level, 1 if i in chosen_indexes else 0) for i in range(int(self.grid_size[0]))]
         self.grid[0] = new_row
     
     def move_grid_down(self):
@@ -277,7 +306,7 @@ class Game:
                                 self.click2 = Point(pos[0], pos[1])
                                 
                                 direction = Vector(self.click2 - self.click1)
-                                print(direction)
+                                # print(direction)
                                 if (direction.y > 0):
                                     self.shot_balls = 0
                                     self.round_state = 'start_shooting'
@@ -290,12 +319,14 @@ class Game:
                 self.round_state = 'add_bricks'
             
             if (self.round_state == 'add_bricks'):
-                self.move_grid_down()
-                if (not any(map(lambda cell: cell.value == 0, self.grid[-1]))):
+                if (any(map(lambda cell: cell.value != 0, self.grid[-2]))):
+                    print('game over, level: ', str(self.level), ' naar checkpoint: ' + str(self.check_point))
                     self.go_to_last_checkpoint()
                 else:
                     self.spawn_blocks()
                     self.level += 1
+                    print('level: ', self.level)
+                    self.move_grid_down()
 
                 
                 self.calculate_lines()
@@ -315,7 +346,7 @@ class Game:
                 run_tick = False
                 
             if keyboard.is_pressed('b'):
-                self.environment.step_size = 30
+                self.environment.step_size = 80
             else:                                         
                 self.environment.step_size = 10
 
