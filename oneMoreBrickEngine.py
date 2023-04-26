@@ -377,13 +377,7 @@ class BallBallInteraction():
         
         return (ball1_new_vel, ball2_new_vel)
         
-class BallSpawning:
-    def __init__(self, time: Number) -> None:
-        self.time_left = time
-    
-    def __repr__(self) -> str:
-        return f'BallSpawning(time_left: {self.time_left})'
-            
+        
 class PhysicsEnvironment():
     """
     The physics environment
@@ -401,7 +395,7 @@ class PhysicsEnvironment():
     
     """
     
-    def __init__(self, sizex, sizey, objects=[], lines=[], step_size=0.005, use_gravity:bool=False, circle_collision: bool=False, collision_efficiency: Number= 1, game=None) -> None:
+    def __init__(self, sizex, sizey, objects=[], lines=[], step_size=0.005, use_gravity:bool=False, circle_collision: bool=False, collision_efficiency: Number= 1) -> None:
         """
         Constructor
         - sizex: int
@@ -409,7 +403,6 @@ class PhysicsEnvironment():
         - objects: list[Ball]
         - lines: list[Line]
         - step_size: float
-        - game: Game
         
         The constructor automatically calculates the collisions
         """        
@@ -419,12 +412,10 @@ class PhysicsEnvironment():
         self.lines : list[Line] = lines
         self.lines += [Line([0,0], [sizex, 0], id="border-under"), Line([sizex, 0], [sizex, sizey], id="border-right"), Line([sizex, sizey], [0, sizey], id="border-over"), Line([0, sizey], [0, 0], id="border-left")]
         self.collisions: list[Collision] = []
-        self.spawnings: list[BallSpawning] = []
         self.use_gravity = use_gravity
         self.circle_collision = circle_collision
         self.collision_efficiency = collision_efficiency
         self.active_collisions_old = []
-        self.game = game
         self.calc_collisions()
     
     def calc_collisions(self):
@@ -524,18 +515,15 @@ class PhysicsEnvironment():
         
         return fixed_a_clip
 
-    def shoot_ball(self, ball_num: Number=-1) -> Ball:
-        ball = Ball(self.game.grid_size.x / 2, self.game.shoot_ball_size + 0.1, self.game.shoot_direction.x, self.game.shoot_direction.y, self.game.shoot_ball_size, str(ball_num))
-        self.objects.append(ball)
-        self.game.last_shot_ball = ball
-        self.calc_collisions()
-        return ball            
-    
-    def calc_active_actions(self, timestep: Number, travelled_time) -> list[Collision, BallSpawning]:
+    def apply_gravity(self, timestep) -> None:
+        for ball in self.objects:
+            ball.vel += (0, -1 * self.step_size * timestep)
+
+    def calc_active_actions(self, timestep: Number, travelled_time) -> list[Collision]:
         active_collisions : list[Collision] = list(filter(lambda col: col.time_left + travelled_time < self.step_size * timestep,  self.collisions))
 
-        active_spawnings = list(filter(lambda spawning: spawning.time_left + travelled_time < self.step_size * timestep, self.spawnings))
-        active_actions = active_collisions + active_spawnings
+        # active_spawnings = list(filter(lambda spawning: spawning.time_left + travelled_time < self.step_size * timestep, self.spawnings))
+        active_actions = active_collisions  #+ active_spawnings
 
         active_actions.sort(key=lambda x: x.time_left)
         return active_actions
@@ -546,8 +534,6 @@ class PhysicsEnvironment():
         # clear the lines
         # for ball in self.objects:
         #     ball.vel_lines = []
-        
-        
         
         if (self.use_gravity):
             for ball in self.objects:
@@ -564,71 +550,35 @@ class PhysicsEnvironment():
         
         # change the balls movements and positions
         active_collisions : list[Collision] = list(filter(lambda col: col.time_left < self.step_size * timestep, self.collisions))
-        self.active_collisions_old = copy.deepcopy(active_collisions)
-        
-        if (self.game.last_shot_ball == None and self.game.round_state == 'shooting'):
-            self.spawnings = [BallSpawning(i * 2.5 * (self.game.shoot_ball_size / self.game.ball_speed)) for i in range(self.game.ball_amount)]
-            
 
-        active_spawnings = list(filter(lambda spawning: spawning.time_left < self.step_size * timestep, self.spawnings))
-        active_actions = active_collisions + active_spawnings
-        active_actions.sort(key=lambda x: x.time_left)
+        active_actions = self.calc_active_actions(timestep, travelled_time)
 
         while len(active_actions) > 0:
-            
-            if (type(active_actions[0]) == BallSpawning):
-                ball = self.shoot_ball()
-                collisions_per_ball[ball] = 0
-            
-            if (type(active_actions[0]) == Collision):
-                responses = self.game.register_collision(active_actions[0])
-                
-                resume_collision = True
-                
-                if ( 'recalculate' in responses):
-                    print('recalculate')
-                    self.calc_collisions()
-                    active_actions = self.calc_active_actions(timestep)
-                
-                if ('remove' in responses):
-                    if (active_actions[0].ball in self.objects):
-                        self.objects.remove(active_actions[0].ball)
-                    
-                    if (self.circle_collision):
-                        self.calc_collisions()
-                        active_actions = self.calc_active_actions(timestep, travelled_time)                    
-                    resume_collision = False
 
-                if (resume_collision):
-                    ball = active_actions[0].ball
-                    ball.vel = active_actions[0].calc_new_vel() * self.collision_efficiency
-                    ball.pos = active_actions[0].collision_point
-                    
-                    # check if the new collision is more urgent
-                    collision = self.get_first_collision(ball)
+            ball = active_actions[0].ball
+            ball.vel = active_actions[0].calc_new_vel() * self.collision_efficiency
+            ball.pos = active_actions[0].collision_point
+            
+            # check if the new collision is more urgent
+            collision = self.get_first_collision(ball)
 
-                    if (collision):
-                        collisions_per_ball[collision.ball] += 1
-                        if (collisions_per_ball[collision.ball] > self.step_size * 10000 * timestep):
-                            pass
-                        else:
-                            self.collisions.append(collision)
-                            active_actions = self.calc_active_actions(timestep, travelled_time)
+            if (collision):
+                collisions_per_ball[collision.ball] += 1
+                if (collisions_per_ball[collision.ball] > self.step_size * 10000 * timestep):
+                    pass
+                else:
+                    self.collisions.append(collision)
+                    active_actions = self.calc_active_actions(timestep, travelled_time)
+            
             travelled_time += active_actions[0].time_left
 
             for ball in self.objects:
                 ball.move_forward(active_actions[0].time_left * ball.vel.length)
             
-            for spawning in self.spawnings:
-                spawning.time_left -= active_actions[0].time_left
-            
             if (len(active_actions) > 0):
                 if (active_actions[0] in self.collisions):
                     self.collisions.remove(active_actions[0])
 
-                if (active_actions[0] in self.spawnings):
-                    self.spawnings.remove(active_actions[0])
-                    
                 if (active_actions[0] in active_actions):
                     active_actions.remove(active_actions[0])
 
@@ -638,8 +588,9 @@ class PhysicsEnvironment():
             for ball in self.objects:
                 ball.move_forward(movement_time_left * ball.vel.length)
 
-            for spawning in self.spawnings:
-                spawning.time_left -= movement_time_left
-
+        if (self.use_gravity or (self.circle_collision)):
+            fix_clipping = self.fix_clipping()   
+            if (fix_clipping):     
+                self.calc_collisions()
 
         

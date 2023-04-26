@@ -20,6 +20,14 @@ import random
 
 Number = Union[int, float]
 
+class BallSpawning:
+    def __init__(self, time: Number) -> None:
+        self.time_left = time
+    
+    def __repr__(self) -> str:
+        return f'BallSpawning(time_left: {self.time_left})'
+    
+
 class Renderer:
     def __init__(self, screenx, screeny, sim_width, sim_height, environment: PhysicsEnvironment) -> None:
         self.screen_width = screenx
@@ -193,9 +201,11 @@ class Game:
         self.shoot_direction = None
         self.last_shot_ball: Ball = None
         
+        self.spawnings = []
+        
         self.start_time = time.time()
         
-        self.environment = PhysicsEnvironment(self.grid_size.x, self.grid_size.y, step_size=10, game=self)
+        self.environment = PhysicsEnvironment(self.grid_size.x, self.grid_size.y, step_size=10)
         self.renderer = Renderer(500, 400, self.grid_size.x, self.grid_size.y, self.environment)
     
     def render_game(self) -> pygame.event.Event:
@@ -228,10 +238,13 @@ class Game:
                         responses.append('recalculate')
 
         return responses
+
+    def shoot_ball(self, ball_num: Number=-1) -> Ball:
+        ball = Ball(self.grid_size.x / 2, self.shoot_ball_size + 0.1, self.shoot_direction.x, self.shoot_direction.y, self.shoot_ball_size, str(ball_num))
+        self.environment.objects.append(ball)
+        self.last_shot_ball = ball
+        return ball  
                 
-                        
-                
-    
     def start_game(self) -> None:
         while True:
             if (self.round_state == 'point'):
@@ -273,7 +286,117 @@ class Game:
             self.start_time = time.time()
 
             if run_tick:
-                self.environment.run_tick(self.time_delta)
-            
+                self.run_game_tick(self.time_delta)
             
             self.events = self.render_game()
+
+    def calc_active_actions(self, timestep: Number, travelled_time) -> list[Collision]:
+        active_collisions : list[Collision] = list(filter(lambda col: col.time_left + travelled_time < self.environment.step_size * timestep,  self.environment.collisions))
+
+        active_spawnings = list(filter(lambda spawning: spawning.time_left + travelled_time < self.environment.step_size * timestep, self.spawnings))
+        active_actions = active_collisions + active_spawnings
+
+        active_actions.sort(key=lambda x: x.time_left)
+        return active_actions
+
+    def run_game_tick(self, timestep) -> None:
+        if (self.round_state == 'point'):
+            pass
+
+        
+        if (self.round_state == 'shooting'):
+            if (self.environment.use_gravity):
+                self.environment.apply_gravity(timestep)
+
+            travelled_time = 0
+            collisions_per_ball = {}
+            collisions_per_ball = {ball: 0 for ball in self.environment.objects}
+            
+            if (self.last_shot_ball == None):
+                self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
+            
+            active_actions = self.calc_active_actions(timestep, travelled_time)
+
+            active_spawnings = list(filter(lambda x: x.time_left < self.environment.step_size * timestep, self.spawnings))
+            
+            active_actions += active_spawnings
+            while len(active_actions) > 0:
+                
+                if (type(active_actions[0]) == BallSpawning):
+                    ball = self.shoot_ball()
+                    collisions_per_ball[ball] = 0
+                    
+                    collision = self.environment.get_first_collision(ball)
+                    self.environment.collisions.append(collision)
+                    active_actions = self.calc_active_actions(timestep, travelled_time)
+                    
+                    if (self.environment.circle_collision):
+                        self.environment.calc_collisions()
+                
+                if (type(active_actions[0]) == Collision):
+                    responses = self.register_collision(active_actions[0])
+                    
+                    resume_collision = True
+                    
+                    if ( 'recalculate' in responses):
+                        print('recalculate')
+                        self.environment.calc_collisions()
+                        active_actions = self.calc_active_actions(timestep)
+                    
+                    if ('remove' in responses):
+                        if (active_actions[0].ball in self.environment.objects):
+                            self.environment.objects.remove(active_actions[0].ball)
+                        
+                        if (self.environment.circle_collision):
+                            self.environment.calc_collisions()
+                            active_actions = self.calc_active_actions(timestep, travelled_time)                    
+                        resume_collision = False
+
+                    if (resume_collision):
+                        ball = active_actions[0].ball
+                        ball.vel = active_actions[0].calc_new_vel() * self.environment.collision_efficiency
+                        ball.pos = active_actions[0].collision_point
+                        
+                        # check if the new collision is more urgent
+                        collision = self.environment.get_first_collision(ball)
+
+                        if (collision):
+                            collisions_per_ball[collision.ball] += 1
+                            if (collisions_per_ball[collision.ball] > self.environment.step_size * 10000 * timestep):
+                                pass
+                            else:
+                                self.environment.collisions.append(collision)
+                                active_actions = self.calc_active_actions(timestep, travelled_time)
+                
+                travelled_time += active_actions[0].time_left
+
+                for ball in self.environment.objects:
+                    ball.move_forward(active_actions[0].time_left * ball.vel.length)
+                
+                for spawning in self.spawnings:
+                    spawning.time_left -= active_actions[0].time_left
+                
+                if (len(active_actions) > 0):
+                    if (active_actions[0] in self.environment.collisions):
+                        self.environment.collisions.remove(active_actions[0])
+
+                    if (active_actions[0] in self.spawnings):
+                        self.spawnings.remove(active_actions[0])
+                        
+                    if (active_actions[0] in active_actions):
+                        active_actions.remove(active_actions[0])
+
+            if (travelled_time < self.environment.step_size * timestep):
+                movement_time_left = (self.environment.step_size * timestep - travelled_time)
+                
+                for ball in self.environment.objects:
+                    ball.move_forward(movement_time_left * ball.vel.length)
+
+                for spawning in self.spawnings:
+                    spawning.time_left -= movement_time_left
+
+
+            if (self.environment.use_gravity or (self.environment.circle_collision)):
+                fix_clipping = self.environment.fix_clipping()   
+                if (fix_clipping):     
+                    self.environment.calc_collisions()
