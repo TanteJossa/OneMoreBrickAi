@@ -184,8 +184,8 @@ class Game:
     def __init__(self, level: Number= 1, grid_size: tuple=(7,9)) -> None:
         self.level = level
         self.grid_size = Point(grid_size[0], grid_size[1])
-        self.grid = [[GridCell(0, 0) for _ in range(grid_size[0])] for _ in range(grid_size[1])]
-        self.check_point = None
+        self.reset_grid()
+        self.check_point = 1
         self.ball_amount = level
         
         self.events = []
@@ -210,8 +210,6 @@ class Game:
     
     def render_game(self) -> pygame.event.Event:
         return self.renderer.update_screen()
-    
-
     
     def calculate_lines(self) -> None:
         pass
@@ -244,10 +242,30 @@ class Game:
         self.environment.objects.append(ball)
         self.last_shot_ball = ball
         return ball  
-                
+    
+    def reset_grid(self):
+        self.grid = [[GridCell(0, 0) for _ in range(int(self.grid_size[0]))] for _ in range(int(self.grid_size[1]))]
+
+    def spawn_blocks(self):
+        # pattern = self.spawn_patterns[random.random() * len(self.spawn_patterns)]
+        new_row = [GridCell((random.random() * 3 + 1) * self.level, 1) for _ in range(int(self.grid_size[0]))]
+        self.grid[0] = new_row
+    
+    def move_grid_down(self):
+        self.grid.insert(0, [GridCell(0, 0) for _ in range(int(self.grid_size[0]))])
+        self.grid.remove(self.grid[-1])
+    
+    def go_to_last_checkpoint(self):
+        self.level = self.check_point
+        self.ball_amount = self.check_point
+        self.reset_grid()
+        self.spawn_blocks()
+        self.move_grid_down()
+    
     def start_game(self) -> None:
         while True:
             if (self.round_state == 'point'):
+
                 if (len(self.events) > 0):
                     for event in self.events:
                         
@@ -262,12 +280,31 @@ class Game:
                                 print(direction)
                                 if (direction.y > 0):
                                     self.shot_balls = 0
-                                    self.round_state = 'shooting'
+                                    self.round_state = 'start_shooting'
                                     self.shoot_direction = direction.unit_vector
                                     
                                 self.click1 = None
                                 self.click2 = None
+            
+            if (self.round_state == 'shooting' and self.last_shot_ball != None and len(self.environment.objects) == 0):
+                self.round_state = 'add_bricks'
+            
+            if (self.round_state == 'add_bricks'):
+                self.move_grid_down()
+                if (not any(map(lambda cell: cell.value == 0, self.grid[-1]))):
+                    self.go_to_last_checkpoint()
+                else:
+                    self.spawn_blocks()
+                    self.level += 1
 
+                
+                self.calculate_lines()
+                self.round_state = 'point'
+                    
+            if (self.round_state == 'start_shooting'):
+                self.last_shot_ball = None
+                self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
+                self.round_state = 'shooting'
             
             # physics engine handles ball shooting
                     
@@ -302,9 +339,8 @@ class Game:
     def run_game_tick(self, timestep) -> None:
         if (self.round_state == 'point'):
             pass
-
         
-        if (self.round_state == 'shooting'):
+        if (self.round_state in ['shooting']):
             if (self.environment.use_gravity):
                 self.environment.apply_gravity(timestep)
 
@@ -312,14 +348,12 @@ class Game:
             collisions_per_ball = {}
             collisions_per_ball = {ball: 0 for ball in self.environment.objects}
             
-            if (self.last_shot_ball == None):
-                self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
-            
             active_actions = self.calc_active_actions(timestep, travelled_time)
 
             active_spawnings = list(filter(lambda x: x.time_left < self.environment.step_size * timestep, self.spawnings))
-            
+
             active_actions += active_spawnings
+            
             while len(active_actions) > 0:
                 
                 if (type(active_actions[0]) == BallSpawning):
