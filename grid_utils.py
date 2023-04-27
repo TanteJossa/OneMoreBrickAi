@@ -19,8 +19,8 @@ This module requires itertools from std::lib
 
 """
 
-import itertools
 
+import itertools
 
 
 def check_validity_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> bool:
@@ -205,6 +205,15 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
 
     # TODO: if two lines are the same, then remove them both
 
+    # makes a list using dictionary and list comprehensions of all the outer lines on the grid
+    points = [    {'start': (0, 0), 'end': (0, 8), 'end_points': [((0, i-1), (0, i)) for i in range(1, 9)]},
+    {'start': (7, 0), 'end': (7, 8), 'end_points': [((7, i-1), (7, i)) for i in range(1, 9)]},
+    {'start': (0, 8), 'end': (7, 8), 'end_points': [((i-1, 8), (i, 8)) for i in range(1, 8)]},
+    ]
+
+    # just trust me
+    end_points = list(itertools.chain.from_iterable(item['end_points'] for item in points)) 
+
     converted_grid_optimized_1 = []
     unique_lines = set()
 
@@ -216,7 +225,7 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
         # iterate over each line tuple in the object
         for line in obj[1]:
             # (line[1], line[0]), because these are the same: ((1, 8), (1, 7)), ((1, 7), (1, 8))
-            if line not in unique_lines and (line[1], line[0]) not in unique_lines: # type: ignore
+            if line not in unique_lines and (line[1], line[0]) not in unique_lines and line not in end_points and (line[1], line[0]) not in end_points: # type: ignore
                 # if not, add it to the unique set and the filtered object list
                 unique_lines.add(line)
                 filtered_obj.append(line) # type: ignore
@@ -227,12 +236,7 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
     # TODO: if a line spans multiple points, then remove the it
     # TODO: if a line is at the end of the grid, then remove it
     converted_grid_optimized_2 = []
-    points = [    {'start': (0, 0), 'end': (0, 8), 'end_points': [((0, i-1), (0, i)) for i in range(1, 9)]},
-    {'start': (7, 0), 'end': (7, 8), 'end_points': [((7, i-1), (7, i)) for i in range(1, 9)]},
-    {'start': (0, 8), 'end': (7, 8), 'end_points': [((i-1, 8), (i, 8)) for i in range(1, 8)]},
-    ]
-
-    end_points = list(itertools.chain.from_iterable(item['end_points'] for item in points)) 
+    
 
     
 
