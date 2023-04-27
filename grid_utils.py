@@ -67,47 +67,47 @@ def convert_to_line(point: tuple[int, int], type: int) -> tuple[tuple[tuple[int,
     
     # if the object is a square
     if type == 1:
-        up_left = (7 - point[0] + 1, point[1])
-        up_right = (7 - point[0] + 1, point[1] + 1)
-        down_left = (point[0], point[1])
-        down_right = (point[0], point[1] + 1)
+        up_left = (point[0], 7 - point[1] + 1)
+        up_right = (point[0] + 1, 7 - point[1] + 1)
+        down_left = (point[0], 7 - point[1])
+        down_right = (point[0] + 1, 7 - point[1])
         return ((up_left, up_right), (up_right, down_right), (down_right, down_left), (down_left, up_left)) # type: ignore (this is a square)
     
     # if the object is a triangle with the upper-right corner empty
     elif type == 2:
-        up_left = (7 - point[0] + 1, point[1])
-        down_left = (7 - point[0], point[1])
-        down_right = (7 - point[0], point[1] + 1)
+        up_left = (point[0], 7 - point[1] + 1)
+        down_left = (point[0], 7 - point[1])
+        down_right = (point[0] + 1, 7 - point[1])
         return ((up_left, down_right), (down_right, down_left), (down_left, up_left))
     
     # if the object is a triangle with the bottom-right corner empty
     elif type == 3:
-        up_left = (7 - point[0] + 1, point[1])
-        up_right = (7 - point[0] + 1, point[1] + 1)
-        down_left = (7 - point[0], point[1])
+        up_left = (point[0], 7 - point[1] + 1)
+        up_right = (point[0] + 1, 7 - point[1] + 1)
+        down_left = (point[0], 7 - point[1])
         return ((up_left, up_right), (up_right, down_left), (down_left, up_left))
 
     # if the object is a triangle with the upper-left corner empty
     elif type == 4:
-        down_left = (7 - point[0], point[1])
-        up_right = (7 - point[0] + 1, point[1] + 1)
-        down_right = (7 - point[0] + 1, point[1])
+        up_right = (point[0] + 1, 7 - point[1] + 1)
+        down_left = (point[0], 7 - point[1])
+        down_right = (point[0] + 1, 7 - point[1])
         return ((down_left, up_right), (up_right, down_right), (down_right, down_left))
     
     # if the object is a triangle with the bottom-left corner empty
     elif type == 5:
-        up_left = (7 - point[0] + 1, point[1])
-        up_right = (7 - point[0] + 1, point[1] + 1)
-        down_right = (7 - point[0], point[1] + 1)
+        up_left = (point[0], 7 - point[1] + 1)
+        up_right = (point[0] + 1, 7 - point[1] + 1)
+        down_right = (point[0] + 1, 7 - point[1])
         return ((up_left, up_right), (up_right, down_right), (down_right, up_left))
     
     # if the object is a circle
     elif type == 6:
         raise TypeError("Circles aren't supported yet!")
     
-    # the object isn't supported
+    # the object isn't recognized
     else:
-        raise TypeError("The given type isn't supported!")
+        raise TypeError("The given type isn't recognized!")
 
 
 def convert_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> list[tuple[tuple[int, int], tuple[int, int]], tuple[int, int]]: # type: ignore
@@ -133,6 +133,101 @@ def convert_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> lis
             if grid[i][j] == 0:
                 pass
             else:
-                all_lines.append((convert_to_line(point=(i, j), type=grid[i][j]), (i, j))) # (i, j) is the point on the grid
+                all_lines.append(((j, 8 - i), convert_to_line(point=(j, i), type=grid[i][j]))) # (j, i) is the point on the grid (x, y)
 
     return all_lines
+
+
+
+def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], tuple[int, int]]) -> list[tuple[tuple[int, int],    # type: ignore
+                                                                                                                tuple[int, int]],
+                                                                                                                tuple[int, int]]:   # type: ignore
+    """
+    Optimize the given grid.
+
+    Args:
+        - converted_grid (list[tuple[tuple[int, int], tuple[int, int]], tuple[int, int]]): A list of tuples representing the lines on the grid.
+
+    Returns:
+        - A list of tuples representing the grid.
+
+    Example:
+        1.  There is a duplicate line in the grid:
+
+            # suppose this is the 8x7 grid as a list of lists, in which each inner list represents a row
+            grid = [
+                [1, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0]
+            ]
+            
+            The lines received from the function are:
+            (((0, 8), (1, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)), ((0, 7), (0, 8)))
+            (((1, 8), (2, 8)), ((2, 8), (2, 7)), ((2, 7), (1, 7)), ((1, 7), (1, 8)))
+
+            Now the following lines are the same so them both would be a waste of resources, we only return one ((1, 8), (1, 7)), ((1, 7), (1, 8))
+            (((0, 8), (1, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)), ((0, 7), (0, 8)))
+            (((1, 8), (2, 8)), ((2, 8), (2, 7)), ((2, 7), (1, 7)))
+            
+        
+        2.  A line spans multiple points
+            
+            # suppose we have the same grid as above
+            
+            The lines received from the function are (when partially optimized):
+            (((0, 8), (1, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)), ((0, 7), (0, 8)))
+            (((1, 8), (2, 8)), ((2, 8), (2, 7)), ((2, 7), (1, 7)))
+
+            Now ((0, 8), (1, 8)) and ((1, 8), (2, 8)), so we remove one and expend the other
+            (((0, 8), (2, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)), ((0, 7), (0, 8)))
+            (((2, 8), (2, 7)), ((2, 7), (1, 7)))
+
+        3. A line is at the end of the grid
+            
+            # suppose we have the same grid as above
+            
+            The lines received from the function are (when partially optimized):
+            (((0, 8), (2, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)), ((0, 7), (0, 8)))
+            (((2, 8), (2, 7)), ((2, 7), (1, 7)))
+
+            Now ((0, 8), (2, 8)), ((0, 7), (0, 8)) are at the end of the grid, so we remove them
+            (((0, 8), (2, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)), ((0, 7), (0, 8)))
+            (((2, 8), (2, 7)), ((2, 7), (1, 7)))
+
+    """
+
+    # TODO: if two lines are the same, then remove them both
+
+    converted_grid_optimized_1 = []
+    unique_lines = set()
+
+    # iterate over each object in the input list
+    for obj in converted_grid:
+        # extract the coordinates tuple and add it to the filtered object list
+        filtered_obj = [obj[0]]
+        
+        # iterate over each line tuple in the object
+        for line in obj[1]:
+            # (line[1], line[0]), because these are the same: ((1, 8), (1, 7)), ((1, 7), (1, 8))
+            if line not in unique_lines and (line[1], line[0]) not in unique_lines: # type: ignore
+                # if not, add it to the unique set and the filtered object list
+                unique_lines.add(line)
+                filtered_obj.append(line) # type: ignore
+        
+        # add the filtered object to the filtered list
+        converted_grid_optimized_1.append(tuple(filtered_obj))
+
+    # TODO: if a line spans multiple points, then remove the it
+    # TODO: if a line is at the end of the grid, then remove it
+    # converted_grid_optimized_2 = []
+    
+
+    
+
+    # print(unique_lines)
+    return converted_grid_optimized_1
