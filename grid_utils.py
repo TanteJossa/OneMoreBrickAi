@@ -38,7 +38,7 @@ def check_validity_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7)
         - ValueError: If the int of rows in the grid is not equal to the amount of rows or the int of columns in any row is not equal to the amount of columns.
     """
 
-    # our 8x7 grid
+    # our 7x8 grid
     grid_format = (num_rows, num_cols)
 
     # check if the grid has 8 rows
@@ -208,13 +208,63 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
     # makes a list using dictionary and list comprehensions of all the outer lines on the grid
     points = [    {'start': (0, 0), 'end': (0, 8), 'end_points': [((0, i-1), (0, i)) for i in range(1, 9)]},
     {'start': (7, 0), 'end': (7, 8), 'end_points': [((7, i-1), (7, i)) for i in range(1, 9)]},
-    # {'start': (0, 8), 'end': (7, 8), 'end_points': [((i-1, 8), (i, 8)) for i in range(1, 8)]},
     ]
 
     # just trust me
     end_points = list(itertools.chain.from_iterable(item['end_points'] for item in points)) 
 
     converted_grid_optimized_1 = []
+    for obj in converted_grid:
+        # extract the coordinates tuple and add it to the filtered object list
+        filtered_obj = {'point':  obj[0], 'lines': []}
+        
+        filtered_lines = []
+        
+        # iterate over each line tuple in the object
+        for line in obj[1]:
+            # (line[1], line[0]), because these are the same: ((1, 8), (1, 7)), ((1, 7), (1, 8))
+            if line not in end_points and (line[1], line[0]) not in end_points: # type: ignore
+                filtered_lines.append(line) # type: ignore
+
+                
+        filtered_obj['lines'] = filtered_lines # type: ignore
+        # add the filtered object to the filtered list
+        converted_grid_optimized_1.append(filtered_obj)
+
+   
+     
+    seen_dict = {}
+    for obj in converted_grid_optimized_1:
+        for line in obj['lines']:
+            if line in seen_dict or (line[1], line[0]) in seen_dict:
+                try:
+                    seen_dict[line] += 1
+                except KeyError:
+                    seen_dict[(line[1], line[0])] += 1
+            else:
+                seen_dict[line] = 1
+    
+    lines_to_remove = []
+    for line in seen_dict:
+        if seen_dict[line] > 1:
+            lines_to_remove.append(line)
+            lines_to_remove.append((line[1], line[0]))
+
+    # using a list comprehension makes a list,
+    # in which every line that isn't in lines_to_remove gets added
+    converted_grid_optimized_2 = [{'point': p, 'lines': [l for l in lines if l not in lines_to_remove]}
+                                   for p, lines in [(d['point'], d['lines'])
+                                                     for d in converted_grid_optimized_1]]
+
+
+    # TODO: if a line spans multiple points combine the lines
+    # idea: find connecting points
+
+    return converted_grid_optimized_2 # type: ignore
+
+
+def filter_duplicate_lines(converted_grid):
+    filtered_grid = []
     unique_lines = set()
 
     # iterate over each object in the input list
@@ -225,29 +275,40 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
         # iterate over each line tuple in the object
         for line in obj[1]:
             # (line[1], line[0]), because these are the same: ((1, 8), (1, 7)), ((1, 7), (1, 8))
-            if line not in unique_lines and (line[1], line[0]) not in unique_lines and line not in end_points and (line[1], line[0]) not in end_points: # type: ignore
+            if line not in unique_lines and (line[1], line[0]) not in unique_lines: 
                 # if not, add it to the unique set and the filtered object list
                 unique_lines.add(line)
-                filtered_obj['lines'].append(line) # type: ignore
-        
-        # add the filtered object to the filtered list
-        converted_grid_optimized_1.append(tuple(filtered_obj))
+                filtered_obj['lines'].append(line)
+        filtered_grid.append(tuple(filtered_obj))
 
-    # TODO: if a line spans multiple points, then remove the it
-    seen = converted_grid_optimized_1
-    # suppose we have these two lines:
-    for line in converted_grid_optimized_1:
-        seen.append(line)
-    seen_2 = converted_grid_optimized_1
-    print(seen)
-    print(seen_2)
-    # ((0, 8), ((0, 8), (1, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)))
-    # ((1, 8), ((1, 8), (2, 8)), ((2, 8), (2, 7)), ((2, 7), (1, 7)))
-    
-
-    return converted_grid_optimized_1
+    return filtered_grid
 
 
-def get_all_lines(grid):
+def get_lines_for_display(grid: list[list[int]]) -> list[dict[tuple[int, int], tuple[tuple[int, int]]]]:
+    """
+    Gives the lines that need to be displayed
+
+    Args:
+        - grid(list[list[int]]): A 2D list representing the grid.
+
+    Returns:
+        - list[dict[tuple[int, int], tuple[tuple[int, int]]]]: A list with dicts,
+        wherein each dict contains the gridpoints and the lines
+    """
+    converted_grid = convert_grid(grid)
+    return filter_duplicate_lines(converted_grid)
+
+
+def get_engine_lines(grid: list[list[int]]) -> list[dict[tuple[int, int], tuple[tuple[int, int]]]]:
+    """
+    Gives the lines that need to be put into the engine
+
+    Args:
+        - grid(list[list[int]]): A 2D list representing the grid.
+
+    Returns:
+        - list[dict[tuple[int, int], tuple[tuple[int, int]]]]: A list with dicts,
+        wherein each dict contains the gridpoints and the lines
+    """
     y = convert_grid(grid)
-    return optimize_grid(y)
+    return optimize_grid(y) # type: ignore
