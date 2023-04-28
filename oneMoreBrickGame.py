@@ -220,7 +220,7 @@ class GridCell:
         return self.type >= 1 and self.type <=6
     @property
     def is_powerup(self) -> bool:
-        return self.type <= -1 and self.type >=-10
+        return self.type <= -1 and self.type >=-11
 
 class GameGrid():
     def __init__(self,sizex: int = 7, sizey: int = 9) -> None:
@@ -353,20 +353,25 @@ class Game:
         return events
     
     def spawn_blocks(self, level):
-        bal_powerup_index = int(random.random() * (self.grid.size[0] - 1) + 1)
-        
-        powerup_indexes = [bal_powerup_index]
-        
-        # pattern = self.spawn_patterns[random.random() * len(self.spawn_patterns)]
         index_list = [i for i in range(int(self.grid.size[0]))]
+        
+        
+        powerup_indexes = random.sample(index_list, 2)
+        bal_powerup_index = powerup_indexes[int(random.random() * len(powerup_indexes) - 1)]
+
+        # pattern = self.spawn_patterns[random.random() * len(self.spawn_patterns)]
         block_index_list = [x for x in index_list if x not in powerup_indexes]
         
-        number_of_blocks = int(round(random.random() * (self.grid.size[0] - 2) + 1))
+        number_of_blocks = int(round(random.random() * (self.grid.size[0] - 2)))
         chosen_block_indexes = random.sample(block_index_list, number_of_blocks)
         
         new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, 1 if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
-
-        new_row[bal_powerup_index].type = -11
+        
+        for index in powerup_indexes:
+            new_row[index].type = -1 * int(random.random() * 10 + 1)
+            new_row[index].value = 0
+        
+        new_row[bal_powerup_index].type = -3
         new_row[bal_powerup_index].value = 0
         
         self.grid.grid[0] = new_row
@@ -389,17 +394,27 @@ class Game:
         # 
         lines = [Line(line[0], line[1], grid_cell=self.grid[self.grid.size[1] - data['point'][1]][data['point'][0]])  for data in result for line in data['lines']]
 
-        powerups = [cell for row in self.grid.grid for cell in row if cell.is_powerup]
-        powerups_circles = [PowerupBall(cell.pos[0] + 0.5, cell.pos[1] - 0.5, grid_cell= cell) for cell in powerups]
-        
-        self.environment.collision_objects = []
-        self.environment.collision_objects = powerups_circles
-        self.environment.lines = lines + self.environment.border_lines
-        
+        for ball in self.environment.collision_objects:
+            if (ball.grid_cell.is_used):
+                self.environment.collision_objects.remove(ball)
+                ball.grid_cell.type = 0
+                ball.grid_cell.value = 0
+                
         for row in self.grid:
             for cell in row:
                 if (cell.is_used):
                     cell.type = 0 
+                    
+        powerups = [cell for row in self.grid.grid for cell in row if cell.is_powerup]
+        powerups_circles = [PowerupBall(cell.pos[0] + 0.5, cell.pos[1] + 0.5, radius=0.5, grid_cell= cell) for cell in powerups]
+        
+        
+        
+        self.environment.collision_objects = []
+        self.environment.collision_objects = powerups_circles
+        self.environment.lines = lines + self.environment.border_lines
+
+
     
     def horizontal_line(self, y, value=1):
         result = False
@@ -449,7 +464,8 @@ class Game:
                         self.calculate_lines()
                         responses.append('recalculate')
                         
-        if (type(collision.object) == PowerupBall):
+        if (isinstance(collision.object, PowerupBall)):
+            print('hi')
             collision.object : PowerupBall
             collision.ball : GameBall
             grid_cell = collision.object.grid_cell
@@ -461,16 +477,15 @@ class Game:
                         grid_cell.is_used = True
 
                 case -2:
-                    if (not collision.ball.is_shielded):    
-                        responses.append('remove')
-                        grid_cell.is_used = True
+                    responses.append('remove')
+                    grid_cell.is_used = True
 
                 case -3:
                     grid_cell.type = 0
                     self.environment.collision_objects.remove(collision.object)
                     self.ball_amount += 1
                     grid_cell.is_used = True
-                    # responses.append('recalculate')
+                    responses.append('recalculate')
                 case -4:
                     if (not collision.ball.has_bounced and not collision.ball.double_bounce):
                         grid_cell.is_used = True
@@ -622,6 +637,7 @@ class Game:
                     print('level: ', self.level)
                     self.move_grid_down()
 
+
                 
                 self.calculate_lines()
                 self.environment.calc_collisions()
@@ -701,7 +717,7 @@ class Game:
                     responses = self.register_collision(collision)
                     
                     apply_collision = True
-                    
+                    print(responses)
                     # if a it touches a powerup
                     if ('passthrough' in responses):
                         apply_collision = False
@@ -715,10 +731,10 @@ class Game:
                         new_bal_vel = copy.deepcopy(collision.ball.vel)
                         new_bal_vel.rotate(30)
                         collision.ball.vel.rotate(-30)
-                        print(collision.ball.pos)
+
                         new_ball = GameBall(collision.ball.x, collision.ball.y, new_bal_vel.x, new_bal_vel.y, self.shoot_ball_size, is_clone=True)
                         self.environment.objects.append(new_ball)
-                        print(self.environment.collisions)
+
                         old_ball_collision = self.environment.get_ball_collisions(collision.ball)                        
                         new_ball_collision = self.environment.get_ball_collisions(new_ball)
                         self.environment.collisions += [old_ball_collision[0], new_ball_collision[0]]

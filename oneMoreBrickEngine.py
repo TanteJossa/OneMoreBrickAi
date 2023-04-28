@@ -356,7 +356,7 @@ class BallBallInteraction():
         # line, because the other ball acts as a line
         collision = Collision(ball=self.ball, collision_point=self.collision_point, touch_point=touch_point, type='circle', new_vel=ball_vel, object=self.ball2)
         collision2 = Collision(ball=self.ball2, collision_point=self.ball2_collision_point, touch_point=touch_point, type='circle', new_vel=ball2_vel, object=self.ball2)
-        
+                
         if (collision.is_valid()):
             self.collisions.append(collision)
         if (collision2.is_valid()):
@@ -447,13 +447,14 @@ class PhysicsEnvironment():
             collision = self.get_first_collision(ball)
             if (collision):
                 self.collisions.append(collision)
+            
 
 
 
                                 
         # sort the collsions
         # if (len(self.collisions) != 0):            
-        #     self.collisions.sort(key=lambda x: x.time_left)
+        self.collisions.sort(key=lambda x: x.time_left)
     
     def get_ball_collisions(self, ball: Ball) -> list[Collision]:
         collisions = []
@@ -468,9 +469,9 @@ class PhysicsEnvironment():
         for ball2 in self.collision_objects:
             if (ball != ball2):
                 interaction = BallBallInteraction(ball,ball2)
-                collisions = list(filter(lambda x: x.ball == ball,interaction.collisions))
-                if (len(collisions) > 0):
-                    collisions += collisions
+                ball_collisions = list(filter(lambda x: x.ball == ball,interaction.collisions))
+                if (len(ball_collisions) > 0):
+                    collisions += ball_collisions
         
         # line interactions
         for line in self.lines:
