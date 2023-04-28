@@ -5,6 +5,7 @@ The functions that come with this module are:
     - check_validity_grid(grid, num_rows, num_cols): checks if the given grid is valid
     - convert_grid(grid, num_rows, num_cols): converts the given grid into a list of lines
     - convert_to_line(point, type): converts the given point into a line
+    - optimize_grid(converted_grid): optimizes the given grid by removing unnecessary lines
 
 The assumptions made are:
     - 0: represents nothing
@@ -156,7 +157,7 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
     Example:
         1.  There is a duplicate line in the grid:
 
-            # suppose this is the 8x7 grid as a list of lists, in which each inner list represents a row
+            # suppose this is the 7x8 grid as a list of lists, in which each inner list represents a row
             grid = [
                 [1, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
@@ -219,7 +220,7 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
     # iterate over each object in the input list
     for obj in converted_grid:
         # extract the coordinates tuple and add it to the filtered object list
-        filtered_obj = [obj[0]]
+        filtered_obj = {'point':  obj[0], 'lines': []}
         
         # iterate over each line tuple in the object
         for line in obj[1]:
@@ -227,13 +228,26 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
             if line not in unique_lines and (line[1], line[0]) not in unique_lines and line not in end_points and (line[1], line[0]) not in end_points: # type: ignore
                 # if not, add it to the unique set and the filtered object list
                 unique_lines.add(line)
-                filtered_obj.append(line) # type: ignore
+                filtered_obj['lines'].append(line) # type: ignore
         
         # add the filtered object to the filtered list
         converted_grid_optimized_1.append(tuple(filtered_obj))
 
     # TODO: if a line spans multiple points, then remove the it
-    converted_grid_optimized_2 = []
+    seen = converted_grid_optimized_1
+    # suppose we have these two lines:
+    for line in converted_grid_optimized_1:
+        seen.append(line)
+    seen_2 = converted_grid_optimized_1
+    print(seen)
+    print(seen_2)
+    # ((0, 8), ((0, 8), (1, 8)), ((1, 8), (1, 7)), ((1, 7), (0, 7)))
+    # ((1, 8), ((1, 8), (2, 8)), ((2, 8), (2, 7)), ((2, 7), (1, 7)))
     
-    
+
     return converted_grid_optimized_1
+
+
+def get_all_lines(grid):
+    y = convert_grid(grid)
+    return optimize_grid(y)
