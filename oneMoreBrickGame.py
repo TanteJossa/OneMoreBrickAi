@@ -465,7 +465,6 @@ class Game:
                         responses.append('recalculate')
                         
         if (isinstance(collision.object, PowerupBall)):
-            print('hi')
             collision.object : PowerupBall
             collision.ball : GameBall
             grid_cell = collision.object.grid_cell
@@ -717,7 +716,6 @@ class Game:
                     responses = self.register_collision(collision)
                     
                     apply_collision = True
-                    print(responses)
                     # if a it touches a powerup
                     if ('passthrough' in responses):
                         apply_collision = False
