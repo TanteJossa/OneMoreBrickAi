@@ -202,13 +202,12 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
             (((2, 8), (2, 7)), ((2, 7), (1, 7)))
 
     """
-
-    # TODO: if two lines are the same, then remove them both
+    
 
     # makes a list using dictionary and list comprehensions of all the outer lines on the grid
     points = [    {'start': (0, 0), 'end': (0, 8), 'end_points': [((0, i-1), (0, i)) for i in range(1, 9)]},
     {'start': (7, 0), 'end': (7, 8), 'end_points': [((7, i-1), (7, i)) for i in range(1, 9)]},
-    {'start': (0, 8), 'end': (7, 8), 'end_points': [((i-1, 8), (i, 8)) for i in range(1, 8)]},
+    # {'start': (0, 8), 'end': (7, 8), 'end_points': [((i-1, 8), (i, 8)) for i in range(1, 8)]},
     ]
 
     # just trust me
@@ -234,11 +233,7 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
         converted_grid_optimized_1.append(tuple(filtered_obj))
 
     # TODO: if a line spans multiple points, then remove the it
-    # TODO: if a line is at the end of the grid, then remove it
     converted_grid_optimized_2 = []
     
-
     
-
-    # print(unique_lines)
     return converted_grid_optimized_1
