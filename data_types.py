@@ -154,6 +154,17 @@ class Vector():
 
         return False
 
+    def rotate(self, angle: float) -> 'Vector':
+        """
+        Rotate the vector
+        :param angle: angle to rotate
+        :return: rotated vector
+        """
+        angle = math.radians(angle)
+        
+        new_x = self.x * math.cos(angle) - self.y * math.sin(angle)
+        new_y = self.x * math.sin(angle) + self.y * math.cos(angle)
+        self.x, self.y = new_x, new_y
 
     def __repr__(self):
         return f"Vector({self.x}, {self.y})"

@@ -406,9 +406,15 @@ class PhysicsEnvironment():
         """        
         self.step_size = step_size
         self.size : list = [sizex, sizey]
+        
         self.objects :list[Ball] = objects
+        
+        self.collision_objects: list[Ball] = []
+        
         self.lines : list[Line] = lines
         self.lines += self.border_lines
+        
+        
         self.collisions: list[Collision] = []
         self.use_gravity = use_gravity
         self.circle_collision = circle_collision
@@ -449,7 +455,7 @@ class PhysicsEnvironment():
         # if (len(self.collisions) != 0):            
         #     self.collisions.sort(key=lambda x: x.time_left)
     
-    def get_first_collision(self, ball: Ball) -> Collision:
+    def get_ball_collisions(self, ball: Ball) -> list[Collision]:
         collisions = []
         
         if (self.circle_collision):
@@ -458,7 +464,14 @@ class PhysicsEnvironment():
                     interaction = BallBallInteraction(ball,ball2)
                     if (len(interaction.collisions) > 0):
                         collisions.append(interaction.collisions[0])
-            
+    
+        for ball2 in self.collision_objects:
+            if (ball != ball2):
+                interaction = BallBallInteraction(ball,ball2)
+                collisions = list(filter(lambda x: x.ball == ball,interaction.collisions))
+                if (len(collisions) > 0):
+                    collisions += collisions
+        
         # line interactions
         for line in self.lines:
             interaction = BallLineInteraction(ball,line)
@@ -470,8 +483,15 @@ class PhysicsEnvironment():
             collisions.sort(key=lambda x: x.distance)
             ball.vel_lines = []
             ball.vel_lines.append([ball.pos, collisions[0].collision_point] ) 
-            return collisions[0]
+            return collisions
         else: 
+            return []
+    
+    def get_first_collision(self, ball: Ball) -> Collision:
+        collisions = self.get_ball_collisions(ball)
+        if (len(collisions) != 0):
+            return collisions[0]
+        else:   
             return False
     
     def fix_ball_clipping(self):

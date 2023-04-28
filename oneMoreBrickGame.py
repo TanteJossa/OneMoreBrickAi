@@ -9,8 +9,8 @@ from typing import Union, Any
 import math
 import copy
 from data_types import *
-from oneMoreBrickEngine import Ball, Collision, PhysicsEnvironment, Line
-from data_types import Vector, Point, Line
+from oneMoreBrickEngine import Ball, Collision, Number, PhysicsEnvironment, Line
+from data_types import Number, Vector, Point, Line
 import pygame
 from pygame import Color
 import time
@@ -68,11 +68,11 @@ class Renderer:
         self.toSimCoords = None
         
         
-        self.screen : pygame.display = pygame.display.set_mode((screenx, screeny), pygame.RESIZABLE)
+        self.screen : pygame.surface.Surface = pygame.display.set_mode((screenx, screeny), pygame.RESIZABLE)
         pygame.display.flip()
         self.clock = pygame.time.Clock()  
         pygame.font.init()
-        self.font = pygame.font.Font('freesansbold.ttf', 32)
+        self.fonts = {32:pygame.font.Font('freesansbold.ttf', 32)}
         self.time_delta = 1       
     
     def draw_circle(self, pos: Point, radius: Number, color: Color) -> None:
@@ -90,9 +90,15 @@ class Renderer:
     def get_screen_size(self) -> tuple[int, int]:
         return pygame.display.get_surface().get_size()
     
-    def draw_text(self, pos=(0,0), text="", color=(255, 255, 255)):
+    def draw_text(self, pos=(0,0), text="", color=(255, 255, 255), font_size = 32):
         pos = self.toScreenCoords(pos)
-        rendered_text = self.font.render(str(text), True, color)
+        if (font_size in self.fonts):
+            font = self.fonts[font_size]
+        else:
+            self.fonts[font_size] = pygame.font.Font('freesansbold.ttf', font_size)
+            font = self.fonts[font_size]
+            
+        rendered_text = font.render(str(text), True, color)
         text_rect = rendered_text.get_rect()
         text_rect.center = (pos[0], pos[1])
         self.screen.blit(rendered_text, text_rect)
@@ -152,7 +158,7 @@ class Renderer:
                     # self.coord1 = None
                     # self.coord2 = None
 
-        fps = self.font.render(str(round(1 / self.time_delta)), True, (255, 255, 255))
+        fps = self.fonts[32].render(str(round(1 / self.time_delta)), True, (255, 255, 255))
         textRect = fps.get_rect()
         textRect.center = (50, 20)    
         self.screen.blit(fps, textRect)
@@ -192,12 +198,16 @@ class GridCell:
     -8=random direction up
     -9=bigger
     -10=smaller
+    -11=Boost
+    -12=Shield
+
     """
     def __init__(self, value: Number=0, type: Number=0, pos: Point=(0,0)) -> None:
         self.pos = pos
         self.value = value
         self.type = type
-    
+        self.is_used = False
+
     def __repr__(self):
         return f'GridCell(value={self.value}, type={self.type}, pos={self.pos})'
     
@@ -209,7 +219,7 @@ class GridCell:
     def is_collidable(self) -> bool:
         return self.type >= 1 and self.type <=6
     @property
-    def is_upgrade(self) -> bool:
+    def is_powerup(self) -> bool:
         return self.type <= -1 and self.type >=-10
 
 class GameGrid():
@@ -235,29 +245,25 @@ class GameGrid():
     # def __setitem__(self, index, value):
     #     self.grid[self.size[1] - index] = value
 
-    def spawn_blocks(self, level):
-        # pattern = self.spawn_patterns[random.random() * len(self.spawn_patterns)]
-        index_list = [i for i in range(int(self.size[0]))]
-        number_of_blocks = int(round(random.random() * (self.size[0] - 1) + 1))
-        chosen_indexes = random.sample(index_list, number_of_blocks)
-        
-        
-        new_row = [GridCell((1 if i in chosen_indexes else 0) * int(random.random() * 3 + 1) * level, 1 if i in chosen_indexes else 0, Point(i, self.size[1])) for i in range(int(self.size[0]))]
-        self.grid[0] = new_row
-    
-    def move_grid_down(self):
-        for row in self.grid:
-            for cell in row:
-                cell.move(0, -1)
-        
-        self.grid.insert(0, [GridCell(0, 0, Point(col, self.size[1])) for col in range(int(self.size[0]))])
-        self.grid.remove(self.grid[-1])
+
+
+class GameBall(Ball):
+    def __init__(self, x: Number = 0, y: Number = 0, vx: Number = 0, vy: Number = 0, radius: Number = 1, id="-1", is_clone:bool = False) -> None:
+        super().__init__(x, y, vx, vy, radius, id)
+        self.double_bounce = False
+        self.has_bounced = False
+        self.is_clone = is_clone
+        self.size = 1
+        self.is_boosted = False
+        self.is_shielded = False
+
+class PowerupBall(Ball):
+    def __init__(self, x: Number = 0, y: Number = 0, radius: Number = 0.4, id="-1", grid_cell:GridCell=None) -> None:
+        super().__init__(x, y, 0, 0, radius, id)
+        self.grid_cell = grid_cell
 
 class Game:
-    """
-    Properties:
-        - level: 
-    """
+
     def __init__(self, level: Number= 1, grid_size: tuple=(7,9)) -> None:
         self.level = level
         self.reset_grid(grid_size)
@@ -275,8 +281,8 @@ class Game:
         self.round_state = 'point'
         self.shot_balls = 0
         self.shoot_direction = None
-        self.last_shot_ball: Ball = None
-        
+        self.last_shot_ball: GameBall = None
+        self.shoot_lines = []
         self.spawnings = []
         
         self.start_time = time.time()
@@ -295,13 +301,31 @@ class Game:
         shoot_point = Point(self.grid.size[0] / 2, self.shoot_ball_size)
 
         if (self.click1 != None and self.click2 != None):
+            
+            for line in self.shoot_lines:
+                self.renderer.draw_line(line.p1, line.p2, (0, 255, 0))
 
-            direction = Vector(self.click2 - self.click1)
-            direction_point = direction.unit_vector * 100
-            self.renderer.draw_line(shoot_point, direction_point, (0, 255, 0))
+            
+            # direction = Vector(self.click2 - self.click1)
+            # direction_point = direction.unit_vector * 100
+            # self.renderer.draw_line(shoot_point, direction_point, (0, 255, 0))
         
         self.renderer.draw_circle(shoot_point, 0.2, (255, 0,0))
 
+        powerup_color = {
+            -1: (255, 0, 0),
+            -2: (255, 83, 0),
+            -3: (255, 165, 0),
+            -4: (255, 210, 0),
+            -5: (255, 255, 0),
+            -6: (128, 192, 0),
+            -7: (0, 128, 0),
+            -8: (0, 64, 128),
+            -9: (0, 0, 255),
+            -10: (38, 0, 193),
+            -11: (75, 0, 130),
+        }
+        
         for row_index, row in enumerate(self.grid):
             for cell_index, cell in enumerate(row):
                 if (cell.type == 1):
@@ -310,7 +334,10 @@ class Game:
                     color = (0, 255, 255)
                     self.renderer.draw_rectangle(bottom_left, top_right, color)
                     self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), cell.value,(0,0,0))
-                
+                if (cell.is_powerup):
+                    self.renderer.draw_circle((cell_index + 0.5, rows- row_index + 0.5), 0.4, powerup_color[cell.type])
+                    self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), cell.type, (255, 255,255), font_size=13)
+                    
         
         for object in self.environment.objects:
             self.renderer.draw_circle(object.pos, object.radius, (0, 0, 255))
@@ -325,28 +352,95 @@ class Game:
 
         return events
     
+    def spawn_blocks(self, level):
+        bal_powerup_index = int(random.random() * (self.grid.size[0] - 1) + 1)
+        
+        powerup_indexes = [bal_powerup_index]
+        
+        # pattern = self.spawn_patterns[random.random() * len(self.spawn_patterns)]
+        index_list = [i for i in range(int(self.grid.size[0]))]
+        block_index_list = [x for x in index_list if x not in powerup_indexes]
+        
+        number_of_blocks = int(round(random.random() * (self.grid.size[0] - 2) + 1))
+        chosen_block_indexes = random.sample(block_index_list, number_of_blocks)
+        
+        new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, 1 if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
+
+        new_row[bal_powerup_index].type = -11
+        new_row[bal_powerup_index].value = 0
+        
+        self.grid.grid[0] = new_row
+    
+    def move_grid_down(self):
+        for row in self.grid:
+            for cell in row:
+                cell.move(0, -1)
+        
+        for ball in self.environment.collision_objects:
+            ball.pos.y -= 1
+            
+        self.grid.grid.insert(0, [GridCell(0, 0, Point(col, self.grid.size[1])) for col in range(int(self.grid.size[0]))])
+        self.grid.grid.remove(self.grid[-1])    
+    
     def calculate_lines(self):
-        grid = [[cell.type for cell in row] for row in self.grid[1:]]
+        grid = [[cell.type if cell.is_collidable else 0 for cell in row] for row in self.grid[1:]]
         result = get_lines(grid)        
         
         # 
         lines = [Line(line[0], line[1], grid_cell=self.grid[self.grid.size[1] - data['point'][1]][data['point'][0]])  for data in result for line in data['lines']]
+
+        powerups = [cell for row in self.grid.grid for cell in row if cell.is_powerup]
+        powerups_circles = [PowerupBall(cell.pos[0] + 0.5, cell.pos[1] - 0.5, grid_cell= cell) for cell in powerups]
         
-        
+        self.environment.collision_objects = []
+        self.environment.collision_objects = powerups_circles
         self.environment.lines = lines + self.environment.border_lines
+        
+        for row in self.grid:
+            for cell in row:
+                if (cell.is_used):
+                    cell.type = 0 
     
+    def horizontal_line(self, y, value=1):
+        result = False
+        for cell in self.grid[self.grid.size[1] - y]:
+            cell:GridCell
+            cell.value -= value
+            if (cell.value <= 0 and cell.is_collidable):
+                cell.type = 0
+                result = True
+
+        return result
+    
+    def vertical_line(self, x: int, value: int=1):
+        result = False
+        for cell in [self.grid[i][x] for i in range(self.grid.size[0])]:
+            cell:GridCell
+            cell.value -= value
+            if (cell.value <= 0 and cell.is_collidable):
+                cell.type = 0
+                result = True
+        self.renderer.draw_line(Point(x,0), Point(x, self.renderer.sim_height), (255, 255,255))
+        return result
+        
     def register_collision(self, collision: Collision) -> None:
         responses = []
         
         if (type(collision.object) == Line):
             collision.object : Line
             if (collision.object.id == 'border-under'):
-                responses.append('remove')
+                if (collision.ball.double_bounce):
+                    collision.ball.double_bounce = False
+                    collision.ball.has_bounced = True
+                else:
+                    responses.append('remove')
+
+                    
+                    
             line_grid_cell = collision.object.grid_cell
             if (line_grid_cell):
                 grid_cell: GridCell = line_grid_cell
                 if (grid_cell.is_collidable):
-                    print(grid_cell)
                     if (grid_cell.value > 0):
                         grid_cell.value -= 1
                     
@@ -354,11 +448,86 @@ class Game:
                         grid_cell.type = 0
                         self.calculate_lines()
                         responses.append('recalculate')
+                        
+        if (type(collision.object) == PowerupBall):
+            collision.object : PowerupBall
+            collision.ball : GameBall
+            grid_cell = collision.object.grid_cell
+            responses.append('passthrough')
+            match grid_cell.type:
+                case -1:
+                    if (not collision.ball.is_clone):
+                        responses.append('dublicate')
+                        grid_cell.is_used = True
 
+                case -2:
+                    if (not collision.ball.is_shielded):    
+                        responses.append('remove')
+                        grid_cell.is_used = True
+
+                case -3:
+                    grid_cell.type = 0
+                    self.environment.collision_objects.remove(collision.object)
+                    self.ball_amount += 1
+                    grid_cell.is_used = True
+                    # responses.append('recalculate')
+                case -4:
+                    if (not collision.ball.has_bounced and not collision.ball.double_bounce):
+                        grid_cell.is_used = True
+                        collision.ball.double_bounce = True
+
+
+                case -5:
+                    horizontal_result = self.horizontal_line(int(grid_cell.pos[1]))
+                    if (horizontal_result):
+                        responses.append('recalculate')
+                        self.calculate_lines()
+                    grid_cell.is_used = True
+
+                case -6:
+                    vertical_result = self.vertical_line(int(grid_cell.pos[0]))
+                    if (vertical_result):
+                        responses.append('recalculate')
+                        self.calculate_lines()
+                    grid_cell.is_used = True
+
+                case -7:
+                    horizontal_result = self.horizontal_line(int(grid_cell.pos[1]))
+                    vertical_result = self.vertical_line(int(grid_cell.pos[0]))
+                    if (horizontal_result or vertical_result):
+                        responses.append('recalculate')
+                        self.calculate_lines()
+                    grid_cell.is_used = True
+
+                case -8:
+                    responses.append('randomdirup')
+                    responses.append('recalculate')
+                    grid_cell.is_used = True
+
+
+                case -9:
+                    if (collision.ball.size != 2):
+                        collision.ball.size *= 2
+                        collision.ball.radius *= 2
+                        grid_cell.is_used = True
+
+                case -10:
+                    if (collision.ball.size != 0.5):
+                        collision.ball.size /= 2
+                        collision.ball.radius /= 2
+                        grid_cell.is_used = True
+                case -11:
+                    if (not collision.ball.is_boosted):
+                        grid_cell.is_used = True
+                        collision.ball.is_boosted = True
+                case -12:
+                    if (not collision.ball.is_shielded):
+                        grid_cell.is_used = True
+                        collision.ball.is_shielded = True
         return responses
 
-    def shoot_ball(self, ball_num: Number=-1) -> Ball:
-        ball = Ball(self.grid.size[0] / 2, self.shoot_ball_size + 0.1, self.shoot_direction.x, self.shoot_direction.y, self.shoot_ball_size, str(ball_num))
+    def shoot_ball(self, ball_num: Number=-1) -> GameBall:
+        ball = GameBall(self.grid.size[0] / 2, self.shoot_ball_size + 0.1, self.shoot_direction.x, self.shoot_direction.y, self.shoot_ball_size, str(ball_num))
         self.environment.objects.append(ball)
         self.last_shot_ball = ball
         return ball  
@@ -373,8 +542,8 @@ class Game:
         self.level = self.check_point
         self.ball_amount = self.check_point
         self.reset_grid()
-        self.grid.spawn_blocks(self.level)
-        self.grid.move_grid_down()
+        self.spawn_blocks(self.level)
+        self.move_grid_down()
     
     def start_game(self) -> None:
         while True:
@@ -395,16 +564,50 @@ class Game:
                             pos = self.renderer.toSimCoords(event.pos)
                             if (not self.click1 == None):
                                 self.click2 = Point(pos[0], pos[1])
+                                direction = Vector(self.click2 - self.click1)
+
+                                touched_bottom = False
+                                lines = []
+                                ball = Ball(self.grid.size[0] / 2, self.shoot_ball_size + 0.1, direction.x, direction.y, self.shoot_ball_size)
+                                for i in range(10):
+                                    if (not touched_bottom):
+                                        previous_pos = copy.deepcopy(ball.pos)
+                                        collisions = self.environment.get_ball_collisions(ball)
+
+
+                                        
+                                        collisions = list(filter(lambda x: not isinstance(x.object, PowerupBall), collisions))
+                                        
+                                        if (len(collisions) == 0):
+                                            touched_bottom = True
+                                            continue
+                                        
+                                        if (collisions[0].object.id == 'border-under'):
+                                            touched_bottom = True
+                                            continue
+                                        
+                                        ball.vel = collisions[0].calc_new_vel()
+                                        ball.pos = collisions[0].collision_point
+                                        lines.append(Line(previous_pos, ball.pos))
+                                
+                                self.shoot_lines = lines
+
 
                         if (event.type == pygame.MOUSEBUTTONUP):
-                            direction = Vector(self.click2 - self.click1)
+                            if (self.click1 != None and self.click2 != None):
+                                direction = Vector(self.click2 - self.click1)
 
-                            if (direction.y > 0):
-                                self.round_state = 'start_shooting'
-                                self.shoot_direction = direction.unit_vector
+                                if (direction.y > 0):
+                                    self.round_state = 'start_shooting'
+                                    self.shoot_direction = direction.unit_vector
+
                                 
                             self.click1 = None
                             self.click2 = None
+            if (self.round_state == 'shooting'):
+                if keyboard.is_pressed('m'):
+                    self.environment.objects = []
+            
             
             if (self.round_state == 'shooting' and self.last_shot_ball != None and len(self.environment.objects) == 0):
                 self.round_state = 'add_bricks'
@@ -414,10 +617,10 @@ class Game:
                     print('game over, level: ', str(self.level), ' naar checkpoint: ' + str(self.check_point))
                     self.go_to_last_checkpoint()
                 else:
-                    self.grid.spawn_blocks(self.level)
+                    self.spawn_blocks(self.level)
                     self.level += 1
                     print('level: ', self.level)
-                    self.grid.move_grid_down()
+                    self.move_grid_down()
 
                 
                 self.calculate_lines()
@@ -430,16 +633,16 @@ class Game:
                 self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
                 self.round_state = 'shooting'
             
-            # physics engine handles ball shooting
-                    
+                                
             
             if keyboard.is_pressed(' '):
                 run_tick = True
             else:                                         
                 run_tick = False
-                
+            run_tick = True
+
             if keyboard.is_pressed('b'):
-                self.environment.step_size = 80
+                self.environment.step_size = 30
             else:                                         
                 self.environment.step_size = 10
 
@@ -479,8 +682,9 @@ class Game:
             active_actions += active_spawnings
             
             while len(active_actions) > 0:
-                
-                if (type(active_actions[0]) == BallSpawning):
+                action = active_actions[0]
+
+                if (type(action) == BallSpawning):
                     ball = self.shoot_ball()
                     collisions_per_ball[ball] = 0
                     
@@ -491,24 +695,57 @@ class Game:
                     if (self.environment.circle_collision):
                         self.environment.calc_collisions()
                 
-                if (type(active_actions[0]) == Collision):
-                    responses = self.register_collision(active_actions[0])
+                if (type(action) == Collision):
+                    collision = action
                     
-                    resume_collision = True
+                    responses = self.register_collision(collision)
                     
+                    apply_collision = True
+                    
+                    # if a it touches a powerup
+                    if ('passthrough' in responses):
+                        apply_collision = False
+                        
+                        collision.ball.pos = collision.collision_point + collision.ball.vel * 0.001
+                        collision = self.environment.get_first_collision(collision.ball)
+                        self.environment.collisions.append(collision)
+                        active_actions = self.calc_active_actions(timestep, travelled_time)
+                    
+                    if ('dublicate' in responses):
+                        new_bal_vel = copy.deepcopy(collision.ball.vel)
+                        new_bal_vel.rotate(30)
+                        collision.ball.vel.rotate(-30)
+                        print(collision.ball.pos)
+                        new_ball = GameBall(collision.ball.x, collision.ball.y, new_bal_vel.x, new_bal_vel.y, self.shoot_ball_size, is_clone=True)
+                        self.environment.objects.append(new_ball)
+                        print(self.environment.collisions)
+                        old_ball_collision = self.environment.get_ball_collisions(collision.ball)                        
+                        new_ball_collision = self.environment.get_ball_collisions(new_ball)
+                        self.environment.collisions += [old_ball_collision[0], new_ball_collision[0]]
+
+                        active_actions = self.calc_active_actions(timestep, travelled_time)  
+                        
+                    if ('randomdirup' in responses):
+                        # tan 60 = 1.73
+                        random_dir = Vector(random.random() * (2 * 1.73) - 1.73, 1).unit_vector * collision.ball.vel.length
+                        collision.ball.vel = random_dir
+                    
+                    
+                                          
+
                     if ('remove' in responses):
-                        if (active_actions[0].ball in self.environment.objects):
-                            self.environment.objects.remove(active_actions[0].ball)
+                        if (collision.ball in self.environment.objects):
+                            self.environment.objects.remove(collision.ball)
                         
                         if (self.environment.circle_collision):
                             self.environment.calc_collisions()
                             active_actions = self.calc_active_actions(timestep, travelled_time)                    
-                        resume_collision = False
-
-                    if (resume_collision):
-                        ball = active_actions[0].ball
-                        ball.vel = active_actions[0].calc_new_vel() * self.environment.collision_efficiency
-                        ball.pos = active_actions[0].collision_point
+                        apply_collision = False
+                    
+                    if (apply_collision):
+                        ball = collision.ball
+                        ball.vel = collision.calc_new_vel() * self.environment.collision_efficiency
+                        ball.pos = collision.collision_point
                         
                         # check if the new collision is more urgent
                         collision = self.environment.get_first_collision(ball)
@@ -522,28 +759,26 @@ class Game:
                                 active_actions = self.calc_active_actions(timestep, travelled_time)
                     
                     if ( 'recalculate' in responses):
-                        print('recalculate')
                         self.environment.calc_collisions()
                         active_actions = self.calc_active_actions(timestep, travelled_time)
-                        continue
+                        
                     
-                travelled_time += active_actions[0].time_left
-
+                travelled_time += action.time_left
+                
                 for ball in self.environment.objects:
-                    ball.move_forward(active_actions[0].time_left * ball.vel.length)
+                    ball.move_forward(action.time_left * ball.vel.length)
                 
                 for spawning in self.spawnings:
-                    spawning.time_left -= active_actions[0].time_left
+                    spawning.time_left -= action.time_left
                 
-                if (len(active_actions) > 0):
-                    if (active_actions[0] in self.environment.collisions):
-                        self.environment.collisions.remove(active_actions[0])
+                if (action in self.environment.collisions):
+                    self.environment.collisions.remove(action)
 
-                    if (active_actions[0] in self.spawnings):
-                        self.spawnings.remove(active_actions[0])
-                        
-                    if (active_actions[0] in active_actions):
-                        active_actions.remove(active_actions[0])
+                if (action in self.spawnings):
+                    self.spawnings.remove(action)
+                    
+                if (action in active_actions):
+                    active_actions.remove(action)
 
             if (travelled_time < self.environment.step_size * timestep):
                 movement_time_left = (self.environment.step_size * timestep - travelled_time)
