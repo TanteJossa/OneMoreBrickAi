@@ -324,6 +324,22 @@ class Game:
             -9: (0, 0, 255),
             -10: (38, 0, 193),
             -11: (75, 0, 130),
+            -11: (75, 0, 130),
+        }
+        
+        powerup_text = {
+            -1: 'split',
+            -2: 'del',
+            -3: '+',
+            -4: 'bounce',
+            -5: 'hor',
+            -6: 'ver',
+            -7: 'cross',
+            -8: 'rand',
+            -9: 'big',
+            -10: 'small',
+            -11: 'boost',
+            -12: 'shield',
         }
         
         for row_index, row in enumerate(self.grid):
@@ -336,7 +352,7 @@ class Game:
                     self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), cell.value,(0,0,0))
                 if (cell.is_powerup):
                     self.renderer.draw_circle((cell_index + 0.5, rows- row_index + 0.5), 0.4, powerup_color[cell.type])
-                    self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), cell.type, (255, 255,255), font_size=13)
+                    self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), powerup_text[cell.type], (255, 255,255), font_size=13)
                     
         
         for object in self.environment.objects:
