@@ -4,10 +4,13 @@ class hi():
     def sayhi(self):
         print("hi,",self.name)
 
- 
+class hi1(hi):
+    def __init__(self, name):
+        super().__init__(name)
+        self.lol = 'lol'
 
-alist = [hi("bram")]
-bram = alist[0]
-alist.remove(alist[0])
 
-print(bram)
+bram = hi1('bram')
+
+
+print(type(bram) == hi1)

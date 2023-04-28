@@ -183,7 +183,6 @@ class Collision():
             return 0
         return self.distance / self.ball.vel.length
 
-
 class BallLineInteraction():
     """
     Interaction between a line a a ball
@@ -376,8 +375,7 @@ class BallBallInteraction():
         ball2_new_vel = self.ball2.vel + n * p
         
         return (ball1_new_vel, ball2_new_vel)
-        
-        
+            
 class PhysicsEnvironment():
     """
     The physics environment
@@ -410,13 +408,17 @@ class PhysicsEnvironment():
         self.size : list = [sizex, sizey]
         self.objects :list[Ball] = objects
         self.lines : list[Line] = lines
-        self.lines += [Line([0,0], [sizex, 0], id="border-under"), Line([sizex, 0], [sizex, sizey], id="border-right"), Line([sizex, sizey], [0, sizey], id="border-over"), Line([0, sizey], [0, 0], id="border-left")]
+        self.lines += self.border_lines
         self.collisions: list[Collision] = []
         self.use_gravity = use_gravity
         self.circle_collision = circle_collision
         self.collision_efficiency = collision_efficiency
         self.active_collisions_old = []
         self.calc_collisions()
+    
+    @property
+    def border_lines(self) -> list[Line]:
+        return [Line([0,0], [self.size[0], 0], id="border-under"), Line([self.size[0], 0], [self.size[0], self.size[1]], id="border-right"), Line([self.size[0], self.size[1]], [0, self.size[1]], id="border-over"), Line([0, self.size[1]], [0, 0], id="border-left")]
     
     def calc_collisions(self):
         self.collisions = []
@@ -444,8 +446,8 @@ class PhysicsEnvironment():
 
                                 
         # sort the collsions
-        if (len(self.collisions) != 0):            
-            self.collisions.sort(key=lambda x: x.time_left)
+        # if (len(self.collisions) != 0):            
+        #     self.collisions.sort(key=lambda x: x.time_left)
     
     def get_first_collision(self, ball: Ball) -> Collision:
         collisions = []
@@ -520,14 +522,16 @@ class PhysicsEnvironment():
             ball.vel += (0, -1 * self.step_size * timestep)
 
     def calc_active_actions(self, timestep: Number, travelled_time) -> list[Collision]:
+        if (len(self.collisions) != 0):            
+            self.collisions.sort(key=lambda x: x.time_left)
+            
         active_collisions : list[Collision] = list(filter(lambda col: col.time_left + travelled_time < self.step_size * timestep,  self.collisions))
 
-        # active_spawnings = list(filter(lambda spawning: spawning.time_left + travelled_time < self.step_size * timestep, self.spawnings))
-        active_actions = active_collisions  #+ active_spawnings
+        active_actions = active_collisions 
 
         active_actions.sort(key=lambda x: x.time_left)
         return active_actions
-
+    
     def run_tick(self, timestep=1):
         # self.collisions = []
 
@@ -549,7 +553,7 @@ class PhysicsEnvironment():
         collisions_per_ball = {ball: 0 for ball in self.objects}
         
         # change the balls movements and positions
-        active_collisions : list[Collision] = list(filter(lambda col: col.time_left < self.step_size * timestep, self.collisions))
+        # active_collisions : list[Collision] = list(filter(lambda col: col.time_left < self.step_size * timestep, self.collisions))
 
         active_actions = self.calc_active_actions(timestep, travelled_time)
 
@@ -567,6 +571,7 @@ class PhysicsEnvironment():
                 if (collisions_per_ball[collision.ball] > self.step_size * 10000 * timestep):
                     pass
                 else:
+                    # can be optimized
                     self.collisions.append(collision)
                     active_actions = self.calc_active_actions(timestep, travelled_time)
             

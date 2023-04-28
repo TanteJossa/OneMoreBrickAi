@@ -78,7 +78,7 @@ class Point():
     def __radd__(self, other) -> 'Point':
         other = self.format_math_other(other)
         return self + other
-    
+
     def __sub__(self, other) -> 'Point':
         other = self.format_math_other(other)
         return Point(self.x - other[0], self.y - other[1])
