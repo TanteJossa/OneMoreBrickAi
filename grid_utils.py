@@ -16,7 +16,7 @@ The assumptions made are:
     - 5: represents a triangle with the bottom-left corner empty
     - 6: represents a circle
 
-This module requires itertools from std::lib
+This module requires itertools from the std::lib
 
 """
 
@@ -53,6 +53,7 @@ def check_validity_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7)
 
 
     return True
+
 
 def convert_to_line(point: tuple[int, int], type: int) -> tuple[tuple[tuple[int, int], tuple[int, int]], 
                                                                tuple[tuple[int, int], tuple[int, int]], 
@@ -129,7 +130,7 @@ def convert_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> lis
 
     # check if the given grid is valid
     check_validity_grid(grid=grid, num_rows=num_rows, num_cols=num_cols)
-    
+
     all_lines = []
     for i in range(num_rows):
         for j in range(num_cols):
@@ -139,7 +140,6 @@ def convert_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> lis
                 all_lines.append(((j, 8 - i), convert_to_line(point=(j, i), type=grid[i][j]))) # (j, i) is the point on the grid (x, y)
 
     return all_lines
-
 
 
 def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], tuple[int, int]]) -> list[tuple[tuple[int, int],    # type: ignore
@@ -213,6 +213,7 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
     # just trust me
     end_points = list(itertools.chain.from_iterable(item['end_points'] for item in points)) 
 
+    # the first optimization (A line is at the end of the grid)
     converted_grid_optimized_1 = []
     for obj in converted_grid:
         # extract the coordinates tuple and add it to the filtered object list
@@ -232,7 +233,7 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
         converted_grid_optimized_1.append(filtered_obj)
 
    
-     
+    # the second optimization (There is a duplicate line in the grid)
     seen_dict = {}
     for obj in converted_grid_optimized_1:
         for line in obj['lines']:
@@ -255,10 +256,6 @@ def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], 
     converted_grid_optimized_2 = [{'point': p, 'lines': [l for l in lines if l not in lines_to_remove]}
                                    for p, lines in [(d['point'], d['lines'])
                                                      for d in converted_grid_optimized_1]]
-
-
-    # TODO: if a line spans multiple points combine the lines
-    # idea: find connecting points
 
     return converted_grid_optimized_2 # type: ignore
 
