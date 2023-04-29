@@ -87,6 +87,13 @@ class Renderer:
         rect = pygame.rect.Rect(min(p1[0], p2[0]), min(p2[1], p1[1]), np.abs(p2[0] - p1[0]), np.abs(p2[1] - p1[1]))
         pygame.draw.rect(self.screen, color, rect)
     
+    def draw_triangle(self, p1: Point, p2: Point, p3: Point, color: Color) -> None:
+        p1 = self.toScreenCoords(p1)
+        p2 = self.toScreenCoords(p2)
+        p3 = self.toScreenCoords(p3)
+        pygame.draw.polygon(self.screen, color, [p1, p2, p3])
+
+
     def get_screen_size(self) -> tuple[int, int]:
         return pygame.display.get_surface().get_size()
     
@@ -262,6 +269,11 @@ class PowerupBall(Ball):
         super().__init__(x, y, 0, 0, radius, id)
         self.grid_cell = grid_cell
 
+class CollisionBall(Ball):
+    def __init__(self, x: Number = 0, y: Number = 0, radius: Number = 0.4, id="-1", grid_cell:GridCell=None) -> None:
+        super().__init__(x, y, 0, 0, radius, id)
+        self.grid_cell = grid_cell
+
 class Game:
 
     def __init__(self, level: Number= 1, grid_size: tuple=(7,9)) -> None:
@@ -285,8 +297,15 @@ class Game:
         self.shoot_lines = []
         self.spawnings = []
         
-        self.start_time = time.time()
+        self.powerup_size = 0.2
+        self.collision_ball_size = 0.4
         
+        self.start_time = time.time()
+        self.current_shot_x = self.grid.size[0] / 2
+        # actually first shot
+        self.next_shot_x = self.grid.size[0] / 2
+
+
         self.environment = PhysicsEnvironment(self.grid.size[0], self.grid.size[1], step_size=10)
         self.renderer = Renderer(500, 400, self.grid.size[0], self.grid.size[1])
         
@@ -298,10 +317,10 @@ class Game:
 
         rows = int(self.grid.size[1]) - 1
 
-        shoot_point = Point(self.grid.size[0] / 2, self.shoot_ball_size)
+        shoot_point = Point(self.current_shot_x, self.shoot_ball_size)
 
         if (self.click1 != None and self.click2 != None):
-            
+            # point lines
             for line in self.shoot_lines:
                 self.renderer.draw_line(line.p1, line.p2, (0, 255, 0))
 
@@ -313,11 +332,11 @@ class Game:
         self.renderer.draw_circle(shoot_point, 0.2, (255, 0,0))
 
         powerup_color = {
-            -1: (255, 0, 0),
-            -2: (255, 83, 0),
-            -3: (255, 165, 0),
-            -4: (255, 210, 0),
-            -5: (255, 255, 0),
+            -1: (155, 0, 0),
+            -2: (155, 83, 0),
+            -3: (155, 165, 0),
+            -4: (155, 210, 0),
+            -5: (155, 255, 0),
             -6: (128, 192, 0),
             -7: (0, 128, 0),
             -8: (0, 64, 128),
@@ -328,10 +347,10 @@ class Game:
         }
         
         powerup_text = {
-            -1: 'split',
+            -1: 'splt',
             -2: 'del',
             -3: '+',
-            -4: 'bounce',
+            -4: 'bnce',
             -5: 'hor',
             -6: 'ver',
             -7: 'cross',
@@ -342,46 +361,81 @@ class Game:
             -12: 'shield',
         }
         
+        # render cells
         for row_index, row in enumerate(self.grid):
             for cell_index, cell in enumerate(row):
+                # block or triangle
+                color = (0, 255, 255)
+
                 if (cell.type == 1):
                     bottom_left = (cell_index+0.01, rows - row_index +0.01)
                     top_right = (cell_index + 1 - 0.01, rows - row_index + 1 - 0.01)
-                    color = (0, 255, 255)
                     self.renderer.draw_rectangle(bottom_left, top_right, color)
                     self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), cell.value,(0,0,0))
+                
+                if (cell.type == 2):
+                    p1 = Point(cell_index, rows- row_index)
+                    p2 = Point(cell_index, rows- row_index + 1)
+                    p3 = Point(cell_index + 1, rows- row_index)
+                    self.renderer.draw_triangle(p1, p2, p3, color )
+                    self.renderer.draw_text((cell_index + 0.2, rows- row_index + 0.2), cell.value,(0,0,0), 20)
+                if (cell.type == 3):
+                    p1 = Point(cell_index, rows- row_index)
+                    p2 = Point(cell_index, rows- row_index + 1)
+                    p3 = Point(cell_index + 1, rows- row_index + 1)
+                    self.renderer.draw_triangle(p1, p2, p3, color )
+                    self.renderer.draw_text((cell_index + 0.2, rows- row_index + 0.6), cell.value,(0,0,0), 20)
+                if (cell.type == 4):
+                    p1 = Point(cell_index, rows- row_index)
+                    p2 = Point(cell_index + 1, rows- row_index)
+                    p3 = Point(cell_index + 1, rows- row_index + 1)
+                    self.renderer.draw_triangle(p1, p2, p3, color )
+                    self.renderer.draw_text((cell_index + 0.7, rows- row_index + 0.2), cell.value,(0,0,0), 20)
+                if (cell.type == 5):
+                    p1 = Point(cell_index + 1, rows- row_index + 1)
+                    p2 = Point(cell_index + 1, rows- row_index)
+                    p3 = Point(cell_index, rows- row_index + 1)
+                    self.renderer.draw_triangle(p1, p2, p3, color )
+                    self.renderer.draw_text((cell_index + 0.7, rows- row_index + 0.6), cell.value,(0,0,0), 20)
+
+                if (cell.type == 6):
+                    self.renderer.draw_circle((cell_index + 0.5, rows- row_index + 0.5), self.collision_ball_size, color)
+                    self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), cell.value,(0,0,0), 20)
+
+                # powerup
                 if (cell.is_powerup):
-                    self.renderer.draw_circle((cell_index + 0.5, rows- row_index + 0.5), 0.4, powerup_color[cell.type])
+                    self.renderer.draw_circle((cell_index + 0.5, rows- row_index + 0.5), self.powerup_size, powerup_color[cell.type])
                     self.renderer.draw_text((cell_index + 0.5, rows- row_index + 0.5), powerup_text[cell.type], (255, 255,255), font_size=13)
                     
-        
+        # render shootings balls
         for object in self.environment.objects:
             self.renderer.draw_circle(object.pos, object.radius, (0, 0, 255))
 
             for vel_arrow in object.vel_lines:
                 self.renderer.draw_line(vel_arrow[0], vel_arrow[1], (255, 0, 0))
-                
+        
+        # render bound lines
         for line in self.environment.lines:
             self.renderer.draw_line(line.p1, line.p2, (0, 0, 0))
 
+        # update screen
         self.renderer.show_changes()
 
         return events
     
-    def spawn_blocks(self, level):
+    def spawn_new_row(self, level):
         index_list = [i for i in range(int(self.grid.size[0]))]
-        
-        
+
+        # 2 is the number of powerups in a row (including the new ball)
         powerup_indexes = random.sample(index_list, 2)
         bal_powerup_index = powerup_indexes[int(random.random() * len(powerup_indexes) - 1)]
 
-        # pattern = self.spawn_patterns[random.random() * len(self.spawn_patterns)]
         block_index_list = [x for x in index_list if x not in powerup_indexes]
         
         number_of_blocks = int(round(random.random() * (self.grid.size[0] - 2)))
         chosen_block_indexes = random.sample(block_index_list, number_of_blocks)
-        
-        new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, 1 if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
+        # int(random.random() * 5 + 1)
+        new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, 6 if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
         
         for index in powerup_indexes:
             new_row[index].type = -1 * int(random.random() * 10 + 1)
@@ -391,6 +445,7 @@ class Game:
         new_row[bal_powerup_index].value = 0
         
         self.grid.grid[0] = new_row
+
     
     def move_grid_down(self):
         for row in self.grid:
@@ -409,25 +464,15 @@ class Game:
         
         # 
         lines = [Line(line[0], line[1], grid_cell=self.grid[self.grid.size[1] - data['point'][1]][data['point'][0]])  for data in result for line in data['lines']]
-
-        for ball in self.environment.collision_objects:
-            if (ball.grid_cell.is_used):
-                self.environment.collision_objects.remove(ball)
-                ball.grid_cell.type = 0
-                ball.grid_cell.value = 0
-                
-        for row in self.grid:
-            for cell in row:
-                if (cell.is_used):
-                    cell.type = 0 
                     
         powerups = [cell for row in self.grid.grid for cell in row if cell.is_powerup]
-        powerups_circles = [PowerupBall(cell.pos[0] + 0.5, cell.pos[1] + 0.5, radius=0.5, grid_cell= cell) for cell in powerups]
+        powerups_circles = [PowerupBall(cell.pos[0] + 0.5, cell.pos[1] - 0.5, radius=self.powerup_size, grid_cell= cell) for cell in powerups]
         
-        
-        
+        balls_cell = [cell for row in self.grid.grid for cell in row if cell.type == 6]
+        collision_balls = [CollisionBall(cell.pos[0] + 0.5, cell.pos[1] - 0.5, radius=self.collision_ball_size, grid_cell=cell) for cell in balls_cell]
+
         self.environment.collision_objects = []
-        self.environment.collision_objects = powerups_circles
+        self.environment.collision_objects = powerups_circles + collision_balls
         self.environment.lines = lines + self.environment.border_lines
 
 
@@ -456,7 +501,7 @@ class Game:
         
     def register_collision(self, collision: Collision) -> None:
         responses = []
-        
+        col_grid_cell = None
         if (type(collision.object) == Line):
             collision.object : Line
             if (collision.object.id == 'border-under'):
@@ -465,20 +510,24 @@ class Game:
                     collision.ball.has_bounced = True
                 else:
                     responses.append('remove')
+                    if (self.next_shot_x == -1):
+                        self.next_shot_x = collision.collision_point.x
 
-                    
-                    
-            line_grid_cell = collision.object.grid_cell
-            if (line_grid_cell):
-                grid_cell: GridCell = line_grid_cell
-                if (grid_cell.is_collidable):
-                    if (grid_cell.value > 0):
-                        grid_cell.value -= 1
-                    
-                    if (grid_cell.value == 0):
-                        grid_cell.type = 0
-                        self.calculate_lines()
-                        responses.append('recalculate')
+            col_grid_cell = collision.object.grid_cell
+        
+        if (isinstance(collision.object, CollisionBall)):                    
+            col_grid_cell = collision.object.grid_cell
+
+        if (col_grid_cell):
+            grid_cell: GridCell = col_grid_cell
+            if (grid_cell.is_collidable):
+                if (grid_cell.value > 0):
+                    grid_cell.value -= 1
+                
+                if (grid_cell.value == 0):
+                    grid_cell.type = 0
+                    self.calculate_lines()
+                    responses.append('recalculate')
                         
         if (isinstance(collision.object, PowerupBall)):
             collision.object : PowerupBall
@@ -557,7 +606,7 @@ class Game:
         return responses
 
     def shoot_ball(self, ball_num: Number=-1) -> GameBall:
-        ball = GameBall(self.grid.size[0] / 2, self.shoot_ball_size + 0.1, self.shoot_direction.x, self.shoot_direction.y, self.shoot_ball_size, str(ball_num))
+        ball = GameBall(self.current_shot_x, self.shoot_ball_size + 0.1, self.shoot_direction.x, self.shoot_direction.y, self.shoot_ball_size, str(ball_num))
         self.environment.objects.append(ball)
         self.last_shot_ball = ball
         return ball  
@@ -572,7 +621,7 @@ class Game:
         self.level = self.check_point
         self.ball_amount = self.check_point
         self.reset_grid()
-        self.spawn_blocks(self.level)
+        self.spawn_new_row(self.level)
         self.move_grid_down()
     
     def start_game(self) -> None:
@@ -598,7 +647,7 @@ class Game:
 
                                 touched_bottom = False
                                 lines = []
-                                ball = Ball(self.grid.size[0] / 2, self.shoot_ball_size + 0.1, direction.x, direction.y, self.shoot_ball_size)
+                                ball = Ball(self.current_shot_x, self.shoot_ball_size + 0.1, direction.x, direction.y, self.shoot_ball_size)
                                 for i in range(10):
                                     if (not touched_bottom):
                                         previous_pos = copy.deepcopy(ball.pos)
@@ -638,16 +687,27 @@ class Game:
                 if keyboard.is_pressed('m'):
                     self.environment.objects = []
             
+            ALL_BALLS_SHOT = self.last_shot_ball != None and len(self.environment.objects) == 0
+            ALL_CELLS_SHOT = all([cell.value == 0 for row in self.grid.grid for cell in row])
             
-            if (self.round_state == 'shooting' and self.last_shot_ball != None and len(self.environment.objects) == 0):
+            if (self.round_state == 'shooting' and (ALL_BALLS_SHOT or ALL_CELLS_SHOT)):
+                if (ALL_CELLS_SHOT):
+                    self.check_point = self.level
+                self.environment.objects = []
+                
                 self.round_state = 'add_bricks'
             
             if (self.round_state == 'add_bricks'):
+                for row in self.grid:
+                    for cell in row:
+                        if (cell.is_used):
+                            cell.type = 0
+                
                 if (any(map(lambda cell: cell.value != 0, self.grid[-2]))):
                     print('game over, level: ', str(self.level), ' naar checkpoint: ' + str(self.check_point))
                     self.go_to_last_checkpoint()
                 else:
-                    self.spawn_blocks(self.level)
+                    self.spawn_new_row(self.level)
                     self.level += 1
                     print('level: ', self.level)
                     self.move_grid_down()
@@ -656,9 +716,14 @@ class Game:
                 
                 self.calculate_lines()
                 self.environment.calc_collisions()
+                if (self.next_shot_x != -1):
+                    self.current_shot_x = self.next_shot_x
+                
+                self.next_shot_x = -1
                 self.round_state = 'point'
                     
             if (self.round_state == 'start_shooting'):
+
                 self.last_shot_ball = None
                 self.shot_balls = 0
                 self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
@@ -702,16 +767,18 @@ class Game:
             if (self.environment.use_gravity):
                 self.environment.apply_gravity(timestep)
 
+            # reset the travelled time in this game_tick
             travelled_time = 0
+            
+            # if a ball is stuck it would collide forever
+            # giving a ball a max collision count fixes this
             collisions_per_ball = {}
             collisions_per_ball = {ball: 0 for ball in self.environment.objects}
             
+            # gets the collisions and ball spawnings in the current time step
             active_actions = self.calc_active_actions(timestep, travelled_time)
-
-            active_spawnings = list(filter(lambda x: x.time_left < self.environment.step_size * timestep, self.spawnings))
-
-            active_actions += active_spawnings
             
+            # execute all collision in the current time step
             while len(active_actions) > 0:
                 action = active_actions[0]
 
@@ -719,13 +786,17 @@ class Game:
                     ball = self.shoot_ball()
                     collisions_per_ball[ball] = 0
                     
-                    collision = self.environment.get_first_collision(ball)
-                    self.environment.collisions.append(collision)
-                    active_actions = self.calc_active_actions(timestep, travelled_time)
-                    
+
                     if (self.environment.circle_collision):
                         self.environment.calc_collisions()
-                
+                    else:
+                        collision = self.environment.get_first_collision(ball)
+
+                        if (collision):
+                            self.environment.collisions.append(collision)
+                    
+                    active_actions = self.calc_active_actions(timestep, travelled_time)
+                    
                 if (type(action) == Collision):
                     collision = action
                     
@@ -738,8 +809,9 @@ class Game:
                         
                         collision.ball.pos = collision.collision_point + collision.ball.vel * 0.001
                         collision = self.environment.get_first_collision(collision.ball)
-                        self.environment.collisions.append(collision)
-                        active_actions = self.calc_active_actions(timestep, travelled_time)
+                        if (collision):
+                            self.environment.collisions.append(collision)
+                            active_actions = self.calc_active_actions(timestep, travelled_time)
                     
                     if ('dublicate' in responses):
                         new_bal_vel = copy.deepcopy(collision.ball.vel)

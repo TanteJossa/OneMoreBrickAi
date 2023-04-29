@@ -155,15 +155,16 @@ class Collision():
         if (self.type == 'point'):
             new_vel = Vector(self.collision_point - self.touch_point)
         if (self.type == 'line'):
-            collision_vec = Vector(self.touch_point.y - self.collision_point.y, self.touch_point.x - self.collision_point.x)
-            collision_line = Line(self.touch_point, self.touch_point + collision_vec)
+            intersect_vec = Vector(self.touch_point - self.collision_point)
+            intersect_vec.rotate(90)
+            collision_vec = intersect_vec
+            collision_line = Line(self.touch_point, self.touch_point - collision_vec)
             
             p_1 = collision_line.closest_point(self.ball.pos)
-            touch_to_p1 = Vector(self.touch_point.x - p_1.x, self.touch_point.y - p_1.y)
-
-            direction_point = self.ball.pos + 2 * touch_to_p1
+            touch_to_p1 = Vector(p_1 - self.touch_point)
+            direction_point = self.ball.pos - 2 * touch_to_p1
             
-            new_vel = Vector(direction_point.x - self.collision_point.x, direction_point.y - self.collision_point.y)
+            new_vel = Vector(direction_point - self.collision_point)
         if (self.type == 'circle'):
             # the calculation happens in the intersection
             new_vel = self.new_vel
@@ -297,7 +298,7 @@ class BallBallInteraction():
     Methods:
         - calc_collisions
     """
-    def __init__(self, ball: Ball, ball2: Ball) -> None:
+    def __init__(self, ball: Ball, ball2: Ball, is_static: bool=False) -> None:
         """
         Constructor
         - ball: Ball
@@ -307,6 +308,7 @@ class BallBallInteraction():
         """
         self.ball = ball
         self.ball2 = ball2
+        self.is_static=is_static
         self.collisions: list[Collision] = []
         self.collision_point : Point= None
         self.ball2_collision_point : Point= None
@@ -351,28 +353,34 @@ class BallBallInteraction():
         
         touch_point = self.collision_point + Vector(self.ball2_collision_point - self.collision_point).unit_vector * self.ball.radius
 
-        ball_vel, ball2_vel = self.calc_new_vels()
-        
-        # line, because the other ball acts as a line
-        collision = Collision(ball=self.ball, collision_point=self.collision_point, touch_point=touch_point, type='circle', new_vel=ball_vel, object=self.ball2)
-        collision2 = Collision(ball=self.ball2, collision_point=self.ball2_collision_point, touch_point=touch_point, type='circle', new_vel=ball2_vel, object=self.ball2)
-                
-        if (collision.is_valid()):
-            self.collisions.append(collision)
-        if (collision2.is_valid()):
-            self.collisions.append(collision2)
+        if (self.is_static):
+            collision = Collision(ball=self.ball, collision_point=self.collision_point, touch_point=touch_point, type='line', object=self.ball2)
+            if (collision.is_valid()):
+                self.collisions.append(collision)
+        else:
+            ball_vel, ball2_vel = self.calc_new_vels()
+            
+            # line, because the other ball acts as a line
+            collision = Collision(ball=self.ball, collision_point=self.collision_point, touch_point=touch_point, type='circle', new_vel=ball_vel, object=self.ball2)
+            collision2 = Collision(ball=self.ball2, collision_point=self.ball2_collision_point, touch_point=touch_point, type='circle', new_vel=ball2_vel, object=self.ball)
+                    
+            if (collision.is_valid()):
+                self.collisions.append(collision)
+            if (collision2.is_valid()):
+                self.collisions.append(collision2)
     
     def calc_new_vels(self) -> tuple[Vector, Vector]:
         """
         Calculate the new velocity for the two balls
         """
-        
+    
         # https://ericleong.me/research/circle-circle/
-        n = Vector(self.ball2_collision_point - self.collision_point).unit_vector
+        n = Vector(self.collision_point - self.ball2_collision_point).unit_vector
+        n.rotate(90)
         p = (n * self.ball.vel) - (n * self.ball2.vel)
-        # print((n * self.ball.vel.length))
-        ball1_new_vel = self.ball.vel - n * p
-        ball2_new_vel = self.ball2.vel + n * p
+
+        ball1_new_vel = self.ball.vel + n * p.length
+        ball2_new_vel = self.ball2.vel - n * p.length
         
         return (ball1_new_vel, ball2_new_vel)
             
@@ -468,7 +476,7 @@ class PhysicsEnvironment():
     
         for ball2 in self.collision_objects:
             if (ball != ball2):
-                interaction = BallBallInteraction(ball,ball2)
+                interaction = BallBallInteraction(ball,ball2, is_static=True)
                 ball_collisions = list(filter(lambda x: x.ball == ball,interaction.collisions))
                 if (len(ball_collisions) > 0):
                     collisions += ball_collisions

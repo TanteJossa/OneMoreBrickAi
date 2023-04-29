@@ -105,12 +105,12 @@ def convert_to_line(point: tuple[int, int], type: int) -> tuple[tuple[tuple[int,
         return ((up_left, up_right), (up_right, down_right), (down_right, up_left))
     
     # if the object is a circle
-    elif type == 6:
-        raise TypeError("Circles aren't supported yet!")
+    # elif type == 6:
+    #     raise TypeError("Circles aren't supported yet!")
     
     # the object isn't recognized
-    else:
-        raise TypeError("The given type isn't recognized!")
+    # else:
+    #     raise TypeError("The given type isn't recognized!")
 
 
 def convert_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> list[tuple[tuple[int, int], tuple[int, int]], tuple[int, int]]: # type: ignore
@@ -133,7 +133,7 @@ def convert_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> lis
     all_lines = []
     for i in range(num_rows):
         for j in range(num_cols):
-            if grid[i][j] == 0:
+            if grid[i][j] <= 0 or grid[i][j] == 6:
                 pass
             else:
                 all_lines.append(((j, 8 - i), convert_to_line(point=(j, i), type=grid[i][j]))) # (j, i) is the point on the grid (x, y)
