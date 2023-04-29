@@ -437,31 +437,11 @@ class PhysicsEnvironment():
     def calc_collisions(self):
         self.collisions = []
 
-        # # ball interactions
-        # if self.circle_collision:
-        #     # every pair exists once
-        #     collision_solver_dict = {}
-        #     for i in range(len(self.objects)):
-        #         collision_solver_dict[self.objects[i]] = self.objects[i+1::]
-                
-        #     for ball in collision_solver_dict:
-        #         for ball2 in collision_solver_dict[ball]:
-        #             interaction = BallBallInteraction(ball,ball2)
-        #             if (len(interaction.collisions) > 0):
-        #                 self.collisions += interaction.collisions
-        
-        # get the collisions for each ball
         for ball in self.objects:
             collision = self.get_first_collision(ball)
             if (collision):
                 self.collisions.append(collision)
-            
-
-
-
-                                
-        # sort the collsions
-        # if (len(self.collisions) != 0):            
+          
         self.collisions.sort(key=lambda x: x.time_left)
     
     def get_ball_collisions(self, ball: Ball) -> list[Collision]:

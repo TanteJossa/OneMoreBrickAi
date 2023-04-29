@@ -305,10 +305,11 @@ class Game:
         # actually first shot
         self.next_shot_x = self.grid.size[0] / 2
 
-
+        # for the AI you should change the step_size to a value as high as possible without your computer crashing 
         self.environment = PhysicsEnvironment(self.grid.size[0], self.grid.size[1], step_size=10)
         self.renderer = Renderer(500, 400, self.grid.size[0], self.grid.size[1])
-        
+        self.spawn_new_row(self.level)
+        self.move_grid_down()
         self.calculate_lines()
 
     
@@ -627,9 +628,14 @@ class Game:
     def start_game(self) -> None:
         while True:
             if (self.round_state == 'point'):
+                # for the ai: Hier moet de AI komen die de shoot_direction (Vector(x, y)) bepaalt en de round_state op 'start_shooting' zet
+                # al deze pygame dingen zijn voor de mouse dingen en het klikken enz
 
                 if (len(self.events) > 0):
                     for event in self.events:
+                        
+                        
+                        
                         
                         if (event.type == pygame.MOUSEBUTTONDOWN):
                             pos = self.renderer.toSimCoords(event.pos)
@@ -737,6 +743,7 @@ class Game:
                 run_tick = False
             run_tick = True
 
+            # for the ai you should remove this (else overloads)
             if keyboard.is_pressed('b'):
                 self.environment.step_size = 30
             else:                                         
@@ -746,6 +753,7 @@ class Game:
             self.start_time = time.time()
 
             if run_tick:
+                # for the AI you can make this always be 1 and control the speed with the self.environment.step_size (they both do the same, but timestep is for the changes in frame time and step_size is for the speed of the simulation)
                 self.run_game_tick(self.time_delta)
             
             self.events = self.render_game()
