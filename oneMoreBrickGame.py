@@ -630,7 +630,7 @@ class Game:
             if (self.round_state == 'point'):
                 # for the ai: Hier moet de AI komen die de shoot_direction (Vector(x, y)) bepaalt en de round_state op 'start_shooting' zet
                 # al deze pygame dingen zijn voor de mouse dingen en het klikken enz
-
+                # the ai can you the self.grid.grid = GridCell.value and GridCell.type, the ball amount, the level and the (self.current_shot_x, self.shoot_ball_size) as shoot coordinates
                 if (len(self.events) > 0):
                     for event in self.events:
                         
