@@ -435,8 +435,8 @@ class Game:
         
         number_of_blocks = int(round(random.random() * (self.grid.size[0] - 2)))
         chosen_block_indexes = random.sample(block_index_list, number_of_blocks)
-        # int(random.random() * 5 + 1)
-        new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, 6 if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
+        # 
+        new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, int(random.random() * 5 + 1) if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
         
         for index in powerup_indexes:
             new_row[index].type = -1 * int(random.random() * 10 + 1)
