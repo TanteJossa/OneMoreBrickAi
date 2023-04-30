@@ -721,7 +721,7 @@ class Game:
                 if keyboard.is_pressed('m'):
                     self.environment.objects = []
                 for ball in self.environment.objects:
-                    is_outside_game = ball.pos.x < 0.0 or ball.pos.x > self.grid.size[0] or ball.pos.y < 0 or ball.pos.y > self.grid.size[1]
+                    is_outside_game = ball.pos.x < 0.0 + ball.radius or ball.pos.x > self.grid.size[0] - ball.radius or ball.pos.y < 0 + ball.radius or ball.pos.y > self.grid.size[1] - ball.radius
                     no_speed = ball.vel.length == 0
                     if (is_outside_game or no_speed):
                         self.environment.objects.remove(ball)
@@ -752,7 +752,8 @@ class Game:
                 else:
                     self.spawn_new_row(self.level)
                     self.level += 1
-                    print('level: ', self.level)
+                    if (not self.use_agent):
+                        print('level: ', self.level)
                     self.move_grid_down()
 
 
@@ -810,6 +811,7 @@ class Game:
             active_actions = active_collisions + active_spawnings
         
         active_actions.sort(key=lambda x: x.time_left)
+        active_actions = list(filter(lambda x: x, active_actions))
         return active_actions
 
     def run_game_tick(self, timestep) -> None:
@@ -922,6 +924,7 @@ class Game:
                             else:
                                 self.environment.collisions.append(collision)
                                 active_actions = self.calc_active_actions(timestep, travelled_time)
+
                     
                     if ( 'recalculate' in responses):
                         self.environment.calc_collisions()

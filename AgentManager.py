@@ -11,6 +11,7 @@ def eval_genomes(genomes, config):
         for i in range(5):
             game = Game(ai_agent=net)
             level = game.start_game()
+            print(level)
             if (level <= 7):
                 genome.fitness -= (level - 7) / 2
             else:
