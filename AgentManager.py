@@ -8,7 +8,7 @@ def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         genome.fitness = 0.0
         net = neat.nn.FeedForwardNetwork.create(genome, config)
-        for i in range(5):
+        for i in range(1):
             game = Game(ai_agent=net)
             level = game.start_game()
             print(level)
@@ -36,7 +36,7 @@ def run(config_file):
     p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
-    winner = p.run(eval_genomes, 10)
+    winner = p.run(eval_genomes, 5)
 
     # Display the winning genome.
     print('\nBest genome:\n{!s}'.format(winner))

@@ -866,9 +866,9 @@ class Game:
                         apply_collision = False
                         
                         collision.ball.pos = collision.collision_point + collision.ball.vel * 0.001
-                        collision = self.environment.get_first_collision(collision.ball)
-                        if (collision):
-                            self.environment.collisions.append(collision)
+                        new_collision = self.environment.get_first_collision(collision.ball)
+                        if (new_collision):
+                            self.environment.collisions.append(new_collision)
                             active_actions = self.calc_active_actions(timestep, travelled_time)
                     
                     if ('dublicate' in responses):
@@ -881,7 +881,10 @@ class Game:
 
                         old_ball_collision = self.environment.get_ball_collisions(collision.ball)                        
                         new_ball_collision = self.environment.get_ball_collisions(new_ball)
-                        self.environment.collisions += [old_ball_collision[0], new_ball_collision[0]]
+                        if (len(old_ball_collision) > 0):
+                            self.environment.collisions.append(old_ball_collision[0])
+                        if (len(new_ball_collision) > 0):
+                            self.environment.collisions.append(new_ball_collision[0])
 
                         active_actions = self.calc_active_actions(timestep, travelled_time)  
                         
