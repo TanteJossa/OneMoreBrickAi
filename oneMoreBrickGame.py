@@ -490,10 +490,11 @@ class Game:
         result = False
         for cell in self.grid[self.grid.size[1] - y]:
             cell:GridCell
-            cell.value -= value
-            if (cell.value <= 0 and cell.is_collidable):
-                cell.type = 0
-                result = True
+            if (cell.is_collidable):
+                cell.value -= value
+                if (cell.value <= 0):
+                    cell.type = 0
+                    result = True
 
         return result
     
@@ -501,10 +502,12 @@ class Game:
         result = False
         for cell in [self.grid[i][x] for i in range(self.grid.size[0])]:
             cell:GridCell
-            cell.value -= value
-            if (cell.value <= 0 and cell.is_collidable):
-                cell.type = 0
-                result = True
+            if (cell.is_collidable):
+
+                cell.value -= value
+                if (cell.value <= 0):
+                    cell.type = 0
+                    result = True
                 
         # self.renderer.draw_line(Point(x,0), Point(x, self.renderer.sim_height), (255, 255,255))
         return result
@@ -728,11 +731,12 @@ class Game:
                     
 
             
-            ALL_BALLS_SHOT = self.last_shot_ball != None and len(self.environment.objects) == 0
+            ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
             ALL_CELLS_SHOT = all([cell.value == 0 for row in self.grid.grid for cell in row])
             
-            if (self.round_state == 'shooting' and (ALL_BALLS_SHOT or ALL_CELLS_SHOT)):
+            if (self.round_state == 'shooting' and (ALL_BALLS_RETURNED or ALL_CELLS_SHOT)):
                 if (ALL_CELLS_SHOT):
+                    print('checkpoint at ' + str(self.level))
                     self.check_point = self.level
                 self.environment.objects = []
                 

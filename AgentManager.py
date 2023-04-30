@@ -15,7 +15,7 @@ def eval_genomes(genomes, config):
             if (level <= 7):
                 genome.fitness -= (level - 7) / 2
             else:
-                genome.fitness -= 1.0
+                pass
 
 
 
