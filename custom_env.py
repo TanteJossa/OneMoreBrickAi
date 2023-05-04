@@ -20,7 +20,11 @@ from oneMoreBrickGame import *
 
 
 class CustomEnv(gym.Env):
-    """Custom Environment that follows gym interface"""
+    """
+    Custom Environment that follows gym interface
+
+    Everything after the helper functions comment has solely to do with the game itself.
+    """
 
     def __init__(self):
         super(CustomEnv, self).__init__()
@@ -34,10 +38,53 @@ class CustomEnv(gym.Env):
 
     def step(self, action):
         ...
+        info = {}
         return observation, reward, done, info
 
+    # observation needs to be returned
     def reset(self):
-        ...
+        self.level = 1
+        self.reset_grid((7, 9))
+        self.check_point = 1
+        self.ball_amount = 1
+        
+        self.ai_agent = None
+        self.use_agent = False
+
+        self.events = []
+        
+        self.click1: Point = None
+        self.click2: Point = None
+        
+        self.shoot_ball_size = 0.15
+        self.ball_speed = 0.5
+        
+        self.round_state = 'point'
+        self.shot_balls = 0
+        self.shoot_direction = None
+        self.last_shot_ball: GameBall = None
+        self.shoot_lines = []
+        self.spawnings = []
+        
+        self.powerup_size = 0.2
+        self.collision_ball_size = 0.4
+        
+        self.start_time = time.time()
+        self.current_shot_x = self.grid.size[0] / 2
+        # actually first shot
+        self.next_shot_x = self.grid.size[0] / 2
+
+        # for the AI you should change the step_size to a value as high as possible without your computer crashing 
+        self.environment = PhysicsEnvironment(self.grid.size[0], self.grid.size[1], step_size=10)
+
+        if (not self.use_agent):
+            self.renderer = Renderer(500, 400, self.grid.size[0], self.grid.size[1])
+
+        self.spawn_new_row(self.level)
+        self.move_grid_down()
+        self.calculate_lines()
+
+
         return observation  # reward, done, info can't be included
 
     def render(self):
@@ -142,8 +189,7 @@ class CustomEnv(gym.Env):
         # update screen
         self.renderer.show_changes()
 
-
-    # HELPER FUNCTIONS
+    # HELPER FUNCTIONS FOR THE GAME
     # I'm not gonna rewrite them
 
     def spawn_new_row(self, level):
@@ -359,3 +405,157 @@ class CustomEnv(gym.Env):
         active_actions.sort(key=lambda x: x.time_left)
         active_actions = list(filter(lambda x: x, active_actions))
         return active_actions
+    
+    def run_game_tick(self, timestep) -> None:
+        if (self.round_state == 'point'):
+            pass
+        
+        if (self.round_state in ['shooting']):
+            if (self.environment.use_gravity):
+                self.environment.apply_gravity(timestep)
+
+            # reset the travelled time in this game_tick
+            travelled_time = 0
+            
+            # if a ball is stuck it would collide forever
+            # giving a ball a max collision count fixes this
+            collisions_per_ball = {}
+            collisions_per_ball = {ball: 0 for ball in self.environment.objects}
+            
+            # a timestep of -1 returns all the events
+            
+            # gets the collisions and ball spawnings in the current time step
+            active_actions = self.calc_active_actions(timestep, travelled_time)
+
+            # execute all collision in the current time step
+            while len(active_actions) > 0:
+
+                action = active_actions[0]
+
+                if (type(action) == BallSpawning):
+                    ball = self.shoot_ball()
+                    collisions_per_ball[ball] = 0
+                    
+
+                    if (self.environment.circle_collision):
+                        self.environment.calc_collisions()
+                    else:
+                        collision = self.environment.get_first_collision(ball)
+
+                        if (collision):
+                            self.environment.collisions.append(collision)
+                    
+                    active_actions = self.calc_active_actions(timestep, travelled_time)
+
+                if (type(action) == Collision):
+                    collision = action
+                    
+                    responses = self.register_collision(collision)
+
+                    apply_collision = True
+                    # if a it touches a powerup
+                    if ('passthrough' in responses):
+                        apply_collision = False
+                        
+                        collision.ball.pos = collision.collision_point + collision.ball.vel * 0.001
+                        new_collision = self.environment.get_first_collision(collision.ball)
+                        if (new_collision):
+                            self.environment.collisions.append(new_collision)
+                            active_actions = self.calc_active_actions(timestep, travelled_time)
+                    
+                    if ('dublicate' in responses):
+                        new_bal_vel = copy.deepcopy(collision.ball.vel)
+                        new_bal_vel.rotate(30)
+                        collision.ball.vel.rotate(-30)
+
+                        new_ball = GameBall(collision.ball.x, collision.ball.y, new_bal_vel.x, new_bal_vel.y, self.shoot_ball_size, is_clone=True)
+                        self.environment.objects.append(new_ball)
+
+                        old_ball_collision = self.environment.get_ball_collisions(collision.ball)                        
+                        new_ball_collision = self.environment.get_ball_collisions(new_ball)
+                        if (len(old_ball_collision) > 0):
+                            self.environment.collisions.append(old_ball_collision[0])
+                        if (len(new_ball_collision) > 0):
+                            self.environment.collisions.append(new_ball_collision[0])
+
+                        active_actions = self.calc_active_actions(timestep, travelled_time)  
+                        
+                    if ('randomdirup' in responses):
+                        # tan 60 = 1.73
+                        random_dir = Vector(random.random() * (2 * 1.73) - 1.73, 1).unit_vector * collision.ball.vel.length
+                        collision.ball.vel = random_dir
+                    
+                    if ('remove' in responses):
+                        if (collision.ball in self.environment.objects):
+                            self.environment.objects.remove(collision.ball)
+                        
+                        if (self.environment.circle_collision):
+                            self.environment.calc_collisions()
+                            active_actions = self.calc_active_actions(timestep, travelled_time)                    
+                        apply_collision = False
+                    
+                    if (apply_collision):
+                        ball = collision.ball
+                        ball.vel = collision.calc_new_vel() * self.environment.collision_efficiency
+                        ball.pos = collision.collision_point
+                        
+                        # check if the new collision is more urgent
+                        collision = self.environment.get_first_collision(ball)
+
+                        if (collision):
+                            if (collision.ball not in collisions_per_ball):
+                                collisions_per_ball[collision.ball] = 0
+
+                            collisions_per_ball[collision.ball] += 1
+                            
+                            if (timestep == -1):
+                                allowed_collision_num = 1000
+                            else:
+                                allowed_collision_num = self.environment.step_size * 10000 * timestep
+                                                        
+                            if (collisions_per_ball[collision.ball] > allowed_collision_num):
+                                if (collision.ball in self.environment.objects):
+                                    self.environment.objects.remove(collision.ball)
+                            else:
+                                self.environment.collisions.append(collision)
+                                active_actions = self.calc_active_actions(timestep, travelled_time)
+
+                    
+                    if ( 'recalculate' in responses):
+                        self.environment.calc_collisions()
+                        active_actions = self.calc_active_actions(timestep, travelled_time)
+                        
+                travelled_time += action.time_left
+                for ball in self.environment.objects:
+                    ball.move_forward(action.time_left * ball.vel.length)
+
+                        
+                for spawning in self.spawnings:
+                    spawning.time_left -= action.time_left
+                
+                if (action in self.environment.collisions):
+                    self.environment.collisions.remove(action)
+
+                if (action in self.spawnings):
+                    self.spawnings.remove(action)
+                    
+                if (action in active_actions):
+                    active_actions.remove(action)
+
+                # active_actions = self.calc_active_actions(timestep, travelled_time)
+
+            if (timestep != -1):
+                if (travelled_time < self.environment.step_size * timestep):
+                    movement_time_left = (self.environment.step_size * timestep - travelled_time)
+                    
+                    for ball in self.environment.objects:
+                        ball.move_forward(movement_time_left * ball.vel.length)
+
+                    for spawning in self.spawnings:
+                        spawning.time_left -= movement_time_left
+
+
+                if (self.environment.use_gravity or (self.environment.circle_collision)):
+                    fix_clipping = self.environment.fix_clipping()   
+                    if (fix_clipping):     
+                        self.environment.calc_collisions()
