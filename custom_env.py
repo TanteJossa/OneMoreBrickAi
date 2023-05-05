@@ -4,27 +4,26 @@ from gym import spaces
 
 # dependencies for the game
 import numpy as np
-from typing import Union, Any
 import math
 import copy
 from data_types import *
-from oneMoreBrickEngine import Ball, Collision, Number, PhysicsEnvironment, Line
+from oneMoreBrickEngine import  Collision, Number, PhysicsEnvironment, Line
 from data_types import Number, Vector, Point, Line
-import pygame
-from pygame import Color
 import time
-import keyboard
 import random
 from grid_utils import get_lines
 from oneMoreBrickGame import *
 
 
+# TODO: Make a reward function
+# TODO: Make an observation function
+# TODO: Make the observation and 
+
 class CustomEnv(gym.Env):
     """
     Custom Environment that follows gym interface
-
-    Everything after the helper functions comment has solely to do with the game itself.
     """
+    # Everything after the helper functions comment has solely to do with the game itself.
 
     def __init__(self):
         super(CustomEnv, self).__init__()
@@ -36,8 +35,71 @@ class CustomEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=255,
                                             shape=(N_CHANNELS, HEIGHT, WIDTH), dtype=np.uint8)
 
-    def step(self, action):
-        ...
+    def step(self, action:int):
+        done = False
+
+        angle = action * 180 # action is a value ranging from 0 to 1
+        radians = math.radians(angle)
+        y = math.sin(radians)
+        x = math.cos(radians)
+        direction = Vector(x, y) # type: ignore
+        self.round_state = 'start_shooting'
+        self.shoot_direction = direction.unit_vector
+        
+
+        # the balls are shooting
+        ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
+
+        while not ALL_BALLS_RETURNED:
+            ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
+            for ball in self.environment.objects:
+                is_outside_game = ball.pos.x < 0.0 + ball.radius or ball.pos.x > self.grid.size[0] - ball.radius or ball.pos.y < 0 + ball.radius or ball.pos.y > self.grid.size[1] - ball.radius
+                no_speed = ball.vel.length == 0
+                if (is_outside_game or no_speed):
+                    self.environment.objects.remove(ball)
+
+            # if any problem would occur it's prolly with the run_game_tick method - srry
+            self.time_delta = time.time() - self.start_time
+            self.start_time = time.time()    
+                
+            # for the AI you can make this always be 1 and control the speed with the self.environment.step_size (they both do the same, but timestep is for the changes in frame time and step_size is for the speed of the simulation)
+            self.run_game_tick(self.time_delta)
+                      
+        self.environment.objects = []
+            
+        
+        # adding the new bricks
+        for row in self.grid:
+            for cell in row:
+                if (cell.is_used):
+                    cell.type = 0
+                        
+        if (any(map(lambda cell: cell.value != 0, self.grid[-2]))):
+            done = True
+        else:
+            self.spawn_new_row(self.level)
+            self.level += 1
+            if (not self.use_agent):
+                print('level: ', self.level)
+            self.move_grid_down()
+
+
+        
+        self.calculate_lines()
+        self.environment.calc_collisions()
+        if (self.next_shot_x != -1):
+            self.current_shot_x = self.next_shot_x
+        
+        self.next_shot_x = -1
+
+        # prepare for shooting
+        self.last_shot_ball = None
+        self.shot_balls = 0
+        self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
+
+
+        # the return values
+        done = done
         info = {}
         return observation, reward, done, info
 
