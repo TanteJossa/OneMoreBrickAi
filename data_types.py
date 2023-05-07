@@ -10,10 +10,11 @@
 
 
 import numpy as np
-from numbers import Number
 from typing import Union, Any
 import math
 import copy
+
+Number = Union[int, float]
 
 class Point():
     """
