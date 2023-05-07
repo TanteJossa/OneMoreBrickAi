@@ -1,3 +1,9 @@
+"""
+This module gives the environment for training the AI
+
+It uses the OpenAI gymnasium module.
+"""
+
 # dependencies for the environment
 import gym
 from gym import spaces
@@ -19,11 +25,12 @@ from oneMoreBrickGame import *
 # TODO: Make an observation function
 # TODO: Make the observation and 
 
+
 class CustomEnv(gym.Env):
     """
     Custom Environment that follows gym interface
     """
-    # Everything after the helper functions comment has solely to do with the game itself.
+    # Everything after the helper methods for the game comment has solely to do with the game itself.
 
     def __init__(self):
         super(CustomEnv, self).__init__()
@@ -34,7 +41,7 @@ class CustomEnv(gym.Env):
         # Example for using image as input (channel-first; channel-last also works):
         self.observation_space = spaces.Box(low=0, high=255,
                                             shape=(N_CHANNELS, HEIGHT, WIDTH), dtype=np.uint8)
-
+    # observation, reward needs to be returned  
     def step(self, action:int):
         done = False
 
@@ -149,6 +156,7 @@ class CustomEnv(gym.Env):
 
         return observation  # reward, done, info can't be included
 
+    # finished
     def render(self):
         rows = int(self.grid.size[1]) - 1
 
@@ -251,7 +259,20 @@ class CustomEnv(gym.Env):
         # update screen
         self.renderer.show_changes()
 
-    # HELPER FUNCTIONS FOR THE GAME
+    # Helper methods
+    def get_reward(self):
+        reward = 0
+
+        return reward
+    
+    def get_observation(self):
+        # what is the observation?
+        # the grid, amount of balls and where the player is standing
+        observation = 0
+    
+        return observation
+
+    # HELPER METHODS FOR THE GAME
     # I'm not gonna rewrite them
 
     def spawn_new_row(self, level):
@@ -302,7 +323,7 @@ class CustomEnv(gym.Env):
         collision_balls = [CollisionBall(cell.pos[0] + 0.5, cell.pos[1] - 0.5, radius=self.collision_ball_size, grid_cell=cell) for cell in balls_cell]
 
         self.environment.collision_objects = []
-        self.environment.collision_objects = powerups_circles + collision_balls
+        self.environment.collision_objects = powerups_circles + collision_balls # type: ignore
         self.environment.lines = lines + self.environment.border_lines
 
     def horizontal_line(self, y, value=1):
