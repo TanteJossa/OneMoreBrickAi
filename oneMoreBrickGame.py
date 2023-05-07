@@ -93,7 +93,6 @@ class Renderer:
         p3 = self.toScreenCoords(p3)
         pygame.draw.polygon(self.screen, color, [p1, p2, p3])
 
-
     def get_screen_size(self) -> tuple[int, int]:
         return pygame.display.get_surface().get_size()
     
@@ -252,8 +251,6 @@ class GameGrid():
     # def __setitem__(self, index, value):
     #     self.grid[self.size[1] - index] = value
 
-
-
 class GameBall(Ball):
     def __init__(self, x: Number = 0, y: Number = 0, vx: Number = 0, vy: Number = 0, radius: Number = 1, id="-1", is_clone:bool = False) -> None:
         super().__init__(x, y, vx, vy, radius, id)
@@ -275,7 +272,6 @@ class CollisionBall(Ball):
         self.grid_cell = grid_cell
 
 class Game:
-
     def __init__(self, level: Number= 1, grid_size: tuple=(7,9)) -> None:
         self.level = level
         self.reset_grid(grid_size)
@@ -311,13 +307,17 @@ class Game:
         self.spawn_new_row(self.level)
         self.move_grid_down()
         self.calculate_lines()
-        
+    
     def start_game(self) -> None:
         while True:
+            finish_round = False
+            
             if (self.round_state == 'point'):
                 # for the ai: Hier moet de AI komen die de shoot_direction (Vector(x, y)) bepaalt en de round_state op 'start_shooting' zet
                 # al deze pygame dingen zijn voor de mouse dingen en het klikken enz
                 # the ai can you the self.grid.grid = GridCell.value and GridCell.type, the ball amount, the level and the (self.current_shot_x, self.shoot_ball_size) as shoot coordinates
+                
+                # user input
                 if (len(self.events) > 0):
                     for event in self.events:
 
@@ -373,16 +373,21 @@ class Game:
                                 
                             self.click1 = None
                             self.click2 = None
+
             if (self.round_state == 'shooting'):
+                # m resets the round
                 if keyboard.is_pressed('m'):
                     self.environment.objects = []
-            
-            ALL_BALLS_SHOT = self.last_shot_ball != None and len(self.environment.objects) == 0
-            ALL_CELLS_SHOT = all([cell.value == 0 for row in self.grid.grid for cell in row])
-            
-            if (self.round_state == 'shooting' and (ALL_BALLS_SHOT or ALL_CELLS_SHOT)):
+                if keyboard.is_pressed('l'):
+                    finish_round = True
+
+            ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
+            ALL_CELLS_SHOT = all([cell.value == 0 or cell.is_powerup for row in self.grid.grid for cell in row])
+            if (self.round_state == 'shooting' and (ALL_BALLS_RETURNED or ALL_CELLS_SHOT)):
                 if (ALL_CELLS_SHOT):
                     self.check_point = self.level
+                    print(f'Created checkpoint at: {self.level}')
+
                 self.environment.objects = []
                 
                 self.round_state = 'add_bricks'
@@ -413,20 +418,32 @@ class Game:
                 self.round_state = 'point'
                     
             if (self.round_state == 'start_shooting'):
-
                 self.last_shot_ball = None
                 self.shot_balls = 0
+                self.old_grid = copy.deepcopy(self.grid.grid)
+                self.old_x_pos = copy.deepcopy(self.current_shot_x)
+                self.old_ball_amount = copy.deepcopy(self.ball_amount)
+                self.old_level = copy.deepcopy(self.level)
                 self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
                 self.round_state = 'shooting'
             
                                 
-            
+            # used for testing
+            # now the game should just run
             if keyboard.is_pressed(' '):
                 run_tick = True
             else:                                         
                 run_tick = False
             run_tick = True
-
+            
+            if keyboard.is_pressed('k'):
+                self.current_shot_x = self.old_x_pos
+                self.grid.grid = self.old_grid
+                self.ball_amount = self.old_ball_amount
+                self.level = self.old_level
+                self.calculate_lines()
+                self.environment.calc_collisions()
+                
             # for the ai you should remove this (else overloads)
             if keyboard.is_pressed('b'):
                 self.environment.step_size = 30
@@ -437,9 +454,15 @@ class Game:
             self.start_time = time.time()
 
             if run_tick:
+                if (finish_round):
+                    delta = -1
+                    finish_round = False
+                else:
+                    delta = self.time_delta
                 # for the AI you can make this always be 1 and control the speed with the self.environment.step_size (they both do the same, but timestep is for the changes in frame time and step_size is for the speed of the simulation)
-                self.run_game_tick(self.time_delta)
+                self.run_game_tick(delta)
             
+                
             self.events = self.render_game()
 
     
@@ -566,7 +589,7 @@ class Game:
         number_of_blocks = int(round(random.random() * (self.grid.size[0] - 2)))
         chosen_block_indexes = random.sample(block_index_list, number_of_blocks)
         # 
-        new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, int(random.random() * 5 + 1) if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
+        new_row = [GridCell((1 if i in chosen_block_indexes else 0) * int(random.random() * 3 + 1) * level, int(random.random() * 6) + 1 if i in chosen_block_indexes else 0, Point(i, self.grid.size[1])) for i in range(int(self.grid.size[0]))]
         
         for index in powerup_indexes:
             new_row[index].type = -1 * int(random.random() * 10 + 1)
@@ -756,12 +779,17 @@ class Game:
         self.move_grid_down()
     
     def calc_active_actions(self, timestep: Number, travelled_time) -> list[Collision]:
-        active_collisions : list[Collision] = list(filter(lambda col: col.time_left + travelled_time < self.environment.step_size * timestep,  self.environment.collisions))
+        if (timestep == -1):
+            # print(self.environment.collisions)
+            active_actions = self.environment.collisions + self.spawnings
+        else:
+            active_collisions : list[Collision] = list(filter(lambda col: col.time_left + travelled_time < self.environment.step_size * timestep,  self.environment.collisions))
 
-        active_spawnings = list(filter(lambda spawning: spawning.time_left + travelled_time < self.environment.step_size * timestep, self.spawnings))
-        active_actions = active_collisions + active_spawnings
-
+            active_spawnings = list(filter(lambda spawning: spawning.time_left + travelled_time < self.environment.step_size * timestep, self.spawnings))
+            active_actions = active_collisions + active_spawnings
+        
         active_actions.sort(key=lambda x: x.time_left)
+        active_actions = list(filter(lambda x: x, active_actions))
         return active_actions
 
     def run_game_tick(self, timestep) -> None:
@@ -780,11 +808,14 @@ class Game:
             collisions_per_ball = {}
             collisions_per_ball = {ball: 0 for ball in self.environment.objects}
             
+            # a timestep of -1 returns all the events
+            
             # gets the collisions and ball spawnings in the current time step
             active_actions = self.calc_active_actions(timestep, travelled_time)
-            
+
             # execute all collision in the current time step
             while len(active_actions) > 0:
+
                 action = active_actions[0]
 
                 if (type(action) == BallSpawning):
@@ -801,21 +832,21 @@ class Game:
                             self.environment.collisions.append(collision)
                     
                     active_actions = self.calc_active_actions(timestep, travelled_time)
-                    
+
                 if (type(action) == Collision):
                     collision = action
                     
                     responses = self.register_collision(collision)
-                    
+
                     apply_collision = True
                     # if a it touches a powerup
                     if ('passthrough' in responses):
                         apply_collision = False
                         
                         collision.ball.pos = collision.collision_point + collision.ball.vel * 0.001
-                        collision = self.environment.get_first_collision(collision.ball)
-                        if (collision):
-                            self.environment.collisions.append(collision)
+                        new_collision = self.environment.get_first_collision(collision.ball)
+                        if (new_collision):
+                            self.environment.collisions.append(new_collision)
                             active_actions = self.calc_active_actions(timestep, travelled_time)
                     
                     if ('dublicate' in responses):
@@ -828,7 +859,10 @@ class Game:
 
                         old_ball_collision = self.environment.get_ball_collisions(collision.ball)                        
                         new_ball_collision = self.environment.get_ball_collisions(new_ball)
-                        self.environment.collisions += [old_ball_collision[0], new_ball_collision[0]]
+                        if (len(old_ball_collision) > 0):
+                            self.environment.collisions.append(old_ball_collision[0])
+                        if (len(new_ball_collision) > 0):
+                            self.environment.collisions.append(new_ball_collision[0])
 
                         active_actions = self.calc_active_actions(timestep, travelled_time)  
                         
@@ -837,9 +871,6 @@ class Game:
                         random_dir = Vector(random.random() * (2 * 1.73) - 1.73, 1).unit_vector * collision.ball.vel.length
                         collision.ball.vel = random_dir
                     
-                    
-                                          
-
                     if ('remove' in responses):
                         if (collision.ball in self.environment.objects):
                             self.environment.objects.remove(collision.ball)
@@ -858,23 +889,33 @@ class Game:
                         collision = self.environment.get_first_collision(ball)
 
                         if (collision):
+                            if (collision.ball not in collisions_per_ball):
+                                collisions_per_ball[collision.ball] = 0
+
                             collisions_per_ball[collision.ball] += 1
-                            if (collisions_per_ball[collision.ball] > self.environment.step_size * 10000 * timestep):
-                                pass
+                            
+                            if (timestep == -1):
+                                allowed_collision_num = 1000
+                            else:
+                                allowed_collision_num = self.environment.step_size * 10000 * timestep
+                                                        
+                            if (collisions_per_ball[collision.ball] > allowed_collision_num):
+                                if (collision.ball in self.environment.objects):
+                                    self.environment.objects.remove(collision.ball)
                             else:
                                 self.environment.collisions.append(collision)
                                 active_actions = self.calc_active_actions(timestep, travelled_time)
+
                     
                     if ( 'recalculate' in responses):
                         self.environment.calc_collisions()
                         active_actions = self.calc_active_actions(timestep, travelled_time)
                         
-                    
                 travelled_time += action.time_left
-                
                 for ball in self.environment.objects:
                     ball.move_forward(action.time_left * ball.vel.length)
-                
+
+                        
                 for spawning in self.spawnings:
                     spawning.time_left -= action.time_left
                 
@@ -887,18 +928,20 @@ class Game:
                 if (action in active_actions):
                     active_actions.remove(action)
 
-            if (travelled_time < self.environment.step_size * timestep):
-                movement_time_left = (self.environment.step_size * timestep - travelled_time)
-                
-                for ball in self.environment.objects:
-                    ball.move_forward(movement_time_left * ball.vel.length)
+                # active_actions = self.calc_active_actions(timestep, travelled_time)
 
-                for spawning in self.spawnings:
-                    spawning.time_left -= movement_time_left
+            if (timestep != -1):
+                if (travelled_time < self.environment.step_size * timestep):
+                    movement_time_left = (self.environment.step_size * timestep - travelled_time)
+                    
+                    for ball in self.environment.objects:
+                        ball.move_forward(movement_time_left * ball.vel.length)
+
+                    for spawning in self.spawnings:
+                        spawning.time_left -= movement_time_left
 
 
-            if (self.environment.use_gravity or (self.environment.circle_collision)):
-                fix_clipping = self.environment.fix_clipping()   
-                if (fix_clipping):     
-                    self.environment.calc_collisions()
-
+                if (self.environment.use_gravity or (self.environment.circle_collision)):
+                    fix_clipping = self.environment.fix_clipping()   
+                    if (fix_clipping):     
+                        self.environment.calc_collisions()
