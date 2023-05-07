@@ -6,7 +6,7 @@ It uses the OpenAI gymnasium module.
 
 # dependencies for the environment
 import gym
-from gym import spaces
+from gym.spaces import Box
 
 # dependencies for the game
 import numpy as np
@@ -37,13 +37,13 @@ class CustomEnv(gym.Env):
         # Define action and observation space
         # They must be gym.spaces objects
         # Example when using discrete actions:
-        self.action_space = spaces.Discrete(N_DISCRETE_ACTIONS)
+        self.action_space = Box(low=0, high=1, shape=(1,), dtype=float)
         # Example for using image as input (channel-first; channel-last also works):
         self.observation_space = spaces.Box(low=0, high=255,
                                             shape=(N_CHANNELS, HEIGHT, WIDTH), dtype=np.uint8)
     # observation, reward needs to be returned  
-    def step(self, action:int):
-        done = False
+    def step(self, action:float):
+        done, self.hit_amount = False, 0
 
         angle = action * 180 # action is a value ranging from 0 to 1
         radians = math.radians(angle)
@@ -65,15 +65,14 @@ class CustomEnv(gym.Env):
                 if (is_outside_game or no_speed):
                     self.environment.objects.remove(ball)
 
-            # if any problem would occur it's prolly with the run_game_tick method - srry
-            self.time_delta = time.time() - self.start_time
-            self.start_time = time.time()    
+            # # if any problem would occur it's prolly with the run_game_tick method - srry
+            # self.time_delta = time.time() - self.start_time
+            # self.start_time = time.time()    
                 
             # for the AI you can make this always be 1 and control the speed with the self.environment.step_size (they both do the same, but timestep is for the changes in frame time and step_size is for the speed of the simulation)
-            self.run_game_tick(self.time_delta)
+            self.run_game_tick(-1)
                       
         self.environment.objects = []
-            
         
         # adding the new bricks
         for row in self.grid:
@@ -89,8 +88,6 @@ class CustomEnv(gym.Env):
             if (not self.use_agent):
                 print('level: ', self.level)
             self.move_grid_down()
-
-
         
         self.calculate_lines()
         self.environment.calc_collisions()
@@ -104,10 +101,9 @@ class CustomEnv(gym.Env):
         self.shot_balls = 0
         self.spawnings = [BallSpawning(i * 1.5 * (self.shoot_ball_size / self.ball_speed)) for i in range(self.ball_amount)]
 
-
         # the return values
-        done = done
-        info = {}
+        observation, reward = self.get_observation(), self.get_reward()
+        done, info = done, {}
         return observation, reward, done, info
 
     # observation needs to be returned
@@ -153,7 +149,7 @@ class CustomEnv(gym.Env):
         self.move_grid_down()
         self.calculate_lines()
 
-
+        observation = self.get_observation()
         return observation  # reward, done, info can't be included
 
     # finished
@@ -261,15 +257,22 @@ class CustomEnv(gym.Env):
 
     # Helper methods
     def get_reward(self):
-        reward = 0
 
-        return reward
+        # how many points the balls hti squared
+
+        return self.hit_amount ** 2
     
     def get_observation(self):
-        # what is the observation?
         # the grid, amount of balls and where the player is standing
-        observation = 0
-    
+
+        observation = []
+        for row in self.grid:
+            for cell in row:
+                observation += [cell.type, cell.value]
+
+        observation.append(self.ball_amount)
+        observation.append(self.current_shot_x)
+
         return observation
 
     # HELPER METHODS FOR THE GAME
@@ -376,6 +379,7 @@ class CustomEnv(gym.Env):
             if (grid_cell.is_collidable):
                 if (grid_cell.value > 0):
                     grid_cell.value -= 1
+                    self.hit_amount += 1
                 
                 if (grid_cell.value == 0):
                     grid_cell.type = 0
@@ -466,14 +470,6 @@ class CustomEnv(gym.Env):
     
     def reset_grid(self, grid_size: tuple[int,int] = (7, 9)):
         self.grid = GameGrid(grid_size[0],grid_size[1])
-
-    # NEEDS TO BE REMOVED THERE ARE NO CHECKPOINTS
-    # def go_to_last_checkpoint(self):
-        # self.level = self.check_point
-        # self.ball_amount = self.check_point
-        # self.reset_grid()
-        # self.spawn_new_row(self.level)
-        # self.move_grid_down()
 
     def calc_active_actions(self, timestep: Number, travelled_time) -> list[Collision]:
         if (timestep == -1):
