@@ -37,10 +37,9 @@ class CustomEnv(gym.Env):
         # Define action and observation space
         # They must be gym.spaces objects
         # Example when using discrete actions:
-        self.action_space = Box(low=0, high=1, shape=(1,), dtype=float)
+        self.action_space = Box(low=0, high=1, shape=(1,), dtype=np.float32)
         # Example for using image as input (channel-first; channel-last also works):
-        self.observation_space = spaces.Box(low=0, high=255,
-                                            shape=(N_CHANNELS, HEIGHT, WIDTH), dtype=np.uint8)
+        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(128,), dtype=np.float32)
     # observation, reward needs to be returned  
     def step(self, action:float):
         done, self.hit_amount = False, 0
@@ -58,6 +57,7 @@ class CustomEnv(gym.Env):
         ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
 
         while not ALL_BALLS_RETURNED:
+            # it does not break out of this loop
             ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
             for ball in self.environment.objects:
                 is_outside_game = ball.pos.x < 0.0 + ball.radius or ball.pos.x > self.grid.size[0] - ball.radius or ball.pos.y < 0 + ball.radius or ball.pos.y > self.grid.size[1] - ball.radius
@@ -66,11 +66,12 @@ class CustomEnv(gym.Env):
                     self.environment.objects.remove(ball)
 
             # # if any problem would occur it's prolly with the run_game_tick method - srry
-            # self.time_delta = time.time() - self.start_time
-            # self.start_time = time.time()    
+            self.time_delta = time.time() - self.start_time
+            self.start_time = time.time()    
                 
             # for the AI you can make this always be 1 and control the speed with the self.environment.step_size (they both do the same, but timestep is for the changes in frame time and step_size is for the speed of the simulation)
-            self.run_game_tick(-1)
+            self.run_game_tick(self.time_delta)
+            self._render()
                       
         self.environment.objects = []
         
@@ -80,7 +81,7 @@ class CustomEnv(gym.Env):
                 if (cell.is_used):
                     cell.type = 0
                         
-        if (any(map(lambda cell: cell.value != 0, self.grid[-2]))):
+        if (any(map(lambda cell: cell.value != 0 and cell.is_collidable, self.grid[-2]))):
             done = True
         else:
             self.spawn_new_row(self.level)
@@ -149,11 +150,11 @@ class CustomEnv(gym.Env):
         self.move_grid_down()
         self.calculate_lines()
 
-        observation = self.get_observation()
-        return observation  # reward, done, info can't be included
+        return self.get_observation()  # reward, done, info can't be included
 
-    # finished
-    def render(self):
+    # doet 't nie
+    def _render(self):
+        self.renderer.reset_screen()
         rows = int(self.grid.size[1]) - 1
 
         shoot_point = Point(self.current_shot_x, self.shoot_ball_size)
@@ -264,15 +265,21 @@ class CustomEnv(gym.Env):
     
     def get_observation(self):
         # the grid, amount of balls and where the player is standing
-
-        observation = []
-        for row in self.grid:
-            for cell in row:
-                observation += [cell.type, cell.value]
-
-        observation.append(self.ball_amount)
-        observation.append(self.current_shot_x)
-
+        # get the flattened grid as a 1D array
+        grid = [[cell.type, cell.value] for row in self.grid for cell in row]
+        new_grid = []
+        for tile in grid:
+            new_grid.append(tile[0])
+            new_grid.append(tile[1])
+        
+        # append the remaining features to the end of the array
+        new_grid.append(self.ball_amount)
+        new_grid.append(self.current_shot_x)
+        
+        
+        # make it an np-array
+        observation = np.array(new_grid, np.float32)
+        
         return observation
 
     # HELPER METHODS FOR THE GAME
