@@ -373,12 +373,16 @@ class Game:
                                 
                             self.click1 = None
                             self.click2 = None
+                            
 
             if (self.round_state == 'shooting'):
                 # m resets the round
-                if keyboard.is_pressed('m'):
+                if pygame.key.get_pressed()[pygame.K_m]:
+                
+                # if keyboard.is_pressed('m'):
                     self.environment.objects = []
-                if keyboard.is_pressed('l'):
+                if pygame.key.get_pressed()[pygame.K_l]:
+                # if keyboard.is_pressed('l'):
                     finish_round = True
 
             ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
@@ -430,13 +434,15 @@ class Game:
                                 
             # used for testing
             # now the game should just run
-            if keyboard.is_pressed(' '):
+            if pygame.key.get_pressed()[pygame.K_SPACE]:
+            # keyboard.is_pressed(' '):
                 run_tick = True
             else:                                         
                 run_tick = False
             run_tick = True
-            
-            if keyboard.is_pressed('k'):
+
+            if pygame.key.get_pressed()[pygame.K_k]:            
+            # if keyboard.is_pressed('k'):
                 self.current_shot_x = self.old_x_pos
                 self.grid.grid = self.old_grid
                 self.ball_amount = self.old_ball_amount
@@ -445,7 +451,8 @@ class Game:
                 self.environment.calc_collisions()
                 
             # for the ai you should remove this (else overloads)
-            if keyboard.is_pressed('b'):
+            if pygame.key.get_pressed()[pygame.K_b]:
+            # if keyboard.is_pressed('b'):
                 self.environment.step_size = 30
             else:                                         
                 self.environment.step_size = 10
