@@ -56,7 +56,7 @@ def check_validity_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7)
 
 def convert_to_line(point: tuple[int, int], type: int) -> tuple[tuple[tuple[int, int], tuple[int, int]], 
                                                                tuple[tuple[int, int], tuple[int, int]], 
-                                                               tuple[tuple[int, int], tuple[int, int]]]:
+                                                               tuple[tuple[int, int], tuple[int, int]]]: # type: ignore
     """
     Convert the given point into a line.
 
@@ -139,7 +139,6 @@ def convert_grid(grid: list[list[int]], num_rows: int=8, num_cols: int=7) -> lis
                 all_lines.append(((j, 8 - i), convert_to_line(point=(j, i), type=grid[i][j]))) # (j, i) is the point on the grid (x, y)
 
     return all_lines
-
 
 
 def optimize_grid(converted_grid: list[tuple[tuple[int, int], tuple[int, int]], tuple[int, int]]) -> list[tuple[tuple[int, int],    # type: ignore

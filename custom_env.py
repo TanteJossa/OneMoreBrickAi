@@ -21,25 +21,22 @@ from grid_utils import get_lines
 from oneMoreBrickGame import *
 
 
-# TODO: Make a reward function
-# TODO: Make an observation function
-# TODO: Make the observation and 
-
-
 class CustomEnv(gym.Env):
     """
     Custom Environment that follows gym interface
     """
-    # Everything after the helper methods for the game comment has solely to do with the game itself.
+    # Note: everything after the helper methods for the game comment has solely to do with the game itself.
 
     def __init__(self):
         super(CustomEnv, self).__init__()
         # Define action and observation space
-        # They must be gym.spaces objects
-        # Example when using discrete actions:
+        
+        # the action returned is np-float B = [0, 1]
         self.action_space = Box(low=0, high=1, shape=(1,), dtype=np.float32)
-        # Example for using image as input (channel-first; channel-last also works):
+
+        # the observation is the grid, the grid values, ball amount & the shooting position
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(128,), dtype=np.float32)
+
     # observation, reward needs to be returned  
     def step(self, action:float):
         done, self.hit_amount = False, 0
@@ -59,6 +56,7 @@ class CustomEnv(gym.Env):
         while not ALL_BALLS_RETURNED:
             # it does not break out of this loop
             ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
+            # print(ALL_BALLS_RETURNED)
             for ball in self.environment.objects:
                 is_outside_game = ball.pos.x < 0.0 + ball.radius or ball.pos.x > self.grid.size[0] - ball.radius or ball.pos.y < 0 + ball.radius or ball.pos.y > self.grid.size[1] - ball.radius
                 no_speed = ball.vel.length == 0
@@ -259,7 +257,7 @@ class CustomEnv(gym.Env):
     # Helper methods
     def get_reward(self):
 
-        # how many points the balls hti squared
+        # how many points the balls hit squared
 
         return self.hit_amount ** 2
     
