@@ -27,7 +27,7 @@ class CustomEnv(gym.Env):
     """
     # Note: everything after the helper methods for the game comment has solely to do with the game itself.
 
-    def __init__(self, training: bool=True):
+    def __init__(self, training: bool=True, step_size: int=5):
         super(CustomEnv, self).__init__()
         # Define action and observation space
         
@@ -37,11 +37,14 @@ class CustomEnv(gym.Env):
         # the observation is the grid, the grid values, ball amount & the shooting position
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(128,), dtype=np.float32)
 
+        # variables
         self.training = training
+        self.step_size = step_size
 
     # observation, reward needs to be returned  
     def step(self, action:float):
         self.done, self.hit_amount = False, 0
+        
 
         angle = action * 180 # action is a value ranging from 0 to 1
         radians = math.radians(angle)
@@ -58,24 +61,28 @@ class CustomEnv(gym.Env):
 
         # the balls are shooting
         ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
-
+        wall_margin = 0.001
         while not ALL_BALLS_RETURNED:
             # it does not break out of this loop
             ALL_BALLS_RETURNED = self.last_shot_ball != None and len(self.environment.objects) == 0
             # print(ALL_BALLS_RETURNED)
             for ball in self.environment.objects:
-                is_outside_game = ball.pos.x < 0.0 + ball.radius or ball.pos.x > self.grid.size[0] - ball.radius or ball.pos.y < 0 + ball.radius or ball.pos.y > self.grid.size[1] - ball.radius
+                is_outside_game = ball.pos.x < wall_margin + ball.radius or ball.pos.x > self.grid.size[0] - ball.radius - wall_margin or ball.pos.y < wall_margin + ball.radius or ball.pos.y > self.grid.size[1] - ball.radius - wall_margin
                 no_speed = ball.vel.length == 0
                 if (is_outside_game or no_speed):
                     self.environment.objects.remove(ball)
                     
 
-            # # if any problem would occur it's prolly with the run_game_tick method - srry
-            # self.time_delta = time.time() - self.start_time
-            # self.start_time = time.time()    
+            if not self.training:
+                self.time_delta = time.time() - self.start_time
+                self.start_time = time.time()    
                 
             # for the AI you can make this always be 1 and control the speed with the self.environment.step_size (they both do the same, but timestep is for the changes in frame time and step_size is for the speed of the simulation)
+                # self.run_game_tick(self.time_delta)
+
+            # if self.training:
             self.run_game_tick(-1)
+
             if not self.training:
                 self._render()
                       
@@ -144,9 +151,9 @@ class CustomEnv(gym.Env):
         self.next_shot_x = self.grid.size[0] / 2
 
         # for the AI you should change the step_size to a value as high as possible without your computer crashing 
-        self.environment = PhysicsEnvironment(self.grid.size[0], self.grid.size[1], step_size=10)
+        self.environment = PhysicsEnvironment(self.grid.size[0], self.grid.size[1], step_size=self.step_size)
 
-        if self.training:
+        if not self.training:
             self.renderer = Renderer(500, 400, self.grid.size[0], self.grid.size[1])
 
         self.spawn_new_row(self.level)
@@ -504,8 +511,8 @@ class CustomEnv(gym.Env):
         
         # if a ball is stuck it would collide forever
         # giving a ball a max collision count fixes this
-        collisions_per_ball = {}
-        collisions_per_ball = {ball: 0 for ball in self.environment.objects}
+        # collisions_per_ball = {}
+        # collisions_per_ball = {ball: 0 for ball in self.environment.objects}
         
         # a timestep of -1 returns all the events
         
@@ -519,7 +526,7 @@ class CustomEnv(gym.Env):
 
             if (type(action) == BallSpawning):
                 ball = self.shoot_ball()
-                collisions_per_ball[ball] = 0
+                # collisions_per_ball[ball] = 0
                 
 
                 if (self.environment.circle_collision):
@@ -539,7 +546,7 @@ class CustomEnv(gym.Env):
 
                 apply_collision = True
                 # if a it touches a powerup
-                if ('passthrough' in responses):
+                if ('passthrough' in responses): # type: ignore
                     apply_collision = False
                     
                     collision.ball.pos = collision.collision_point + collision.ball.vel * 0.001
@@ -548,7 +555,7 @@ class CustomEnv(gym.Env):
                         self.environment.collisions.append(new_collision)
                         active_actions = self.calc_active_actions(timestep, travelled_time)
                 
-                if ('dublicate' in responses):
+                if ('dublicate' in responses): # type: ignore
                     new_bal_vel = copy.deepcopy(collision.ball.vel)
                     new_bal_vel.rotate(30)
                     collision.ball.vel.rotate(-30)
@@ -588,17 +595,18 @@ class CustomEnv(gym.Env):
                     collision = self.environment.get_first_collision(ball)
 
                     if (collision):
-                        if (collision.ball not in collisions_per_ball):
-                            collisions_per_ball[collision.ball] = 0
+                        # if (collision.ball not in collisions_per_ball):
+                            # collisions_per_ball[collision.ball] = 0
 
-                        collisions_per_ball[collision.ball] += 1
+
+                        # collisions_per_ball[collision.ball] += 1
+                        ball.collision_num += 1
+
                         
-                        if (timestep == -1):
-                            allowed_collision_num = 1000
-                        else:
-                            allowed_collision_num = self.environment.step_size * 10000 * timestep
-                                                    
-                        if (collisions_per_ball[collision.ball] > allowed_collision_num):
+                        # allowed_collision_num = self.environment.step_size * 10000 * timestep
+                        allowed_collision_num = 10
+
+                        if (ball.collision_num > allowed_collision_num):
                             if (collision.ball in self.environment.objects):
                                 self.environment.objects.remove(collision.ball)
                         else:

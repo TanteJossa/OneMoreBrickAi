@@ -262,6 +262,7 @@ class GameBall(Ball):
         self.size = 1
         self.is_boosted = False
         self.is_shielded = False
+        self.collision_num = 0
 
 class PowerupBall(Ball):
     def __init__(self, x: Number = 0, y: Number = 0, radius: Number = 0.4, id="-1", grid_cell:GridCell=None) -> None:
