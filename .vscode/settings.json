@@ -1,3 +1,9 @@
 {
-    "nuxt.isNuxtApp": false
+    "nuxt.isNuxtApp": false,
+    "rust-analyzer.linkedProjects": [
+        ".\\one_more_brick\\Cargo.toml",
+        ".\\one_more_brick\\Cargo.toml",
+        ".\\one_more_brick\\Cargo.toml",
+        ".\\one_more_brick\\Cargo.toml"
+    ]
 }
