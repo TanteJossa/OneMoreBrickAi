@@ -70,6 +70,19 @@ impl Collision {
 
 }
 
+impl Clone for Collision {
+    fn clone(&self) -> Collision {
+        Collision {
+            ball : self.ball.clone(),
+            collision_point : self.collision_point.clone(),
+            touch_point : self.touch_point.clone(),
+            col_type : self.col_type.clone(),
+            new_vel : self.new_vel.clone(),
+            object : self.object.clone(),
+        }
+    }
+}
+
 struct Interaction {
     ball: Ball,
     object: Either<Ball, Line>,
@@ -153,6 +166,13 @@ impl Interaction {
             vec![collision, collision2]
         };
         
+        let mut collisions: Vec<Collision> = collisions
+            .into_iter()
+            .filter(|collision| collision.is_valid())
+            .collect::<Vec<Collision>>();
+        
+        collisions.sort_by(|a, b| a.time_left().partial_cmp(&b.time_left()).unwrap());
+ 
         collisions
 
     }
@@ -169,10 +189,46 @@ impl Interaction {
         if line_p1_distance < ball.radius {
             let collision1_point_offset = (ball.radius*ball.radius - line_p1_distance*line_p1_distance).sqrt();
             let collision1_point = line_p1_closest - ball.vel.unit_vector() * collision1_point_offset;
-            collisions.push(Collision::new(ball, collision1_point, collision1_point, "line".to_string(), Vector::new(0.0, 0.0), Either::Right(line)));
+            collisions.push(Collision::new(ball, collision1_point, line.p1, "line".to_string(), Vector::new(0.0, 0.0), Either::Right(line)));
+        }
+        if line_p2_distance < ball.radius {
+            let collision2_point_offset = (ball.radius*ball.radius - line_p2_distance*line_p2_distance).sqrt();
+            let collision2_point = line_p2_closest - ball.vel.unit_vector() * collision2_point_offset;
+            collisions.push(Collision::new(ball, collision2_point, line.p2, "line".to_string(), Vector::new(0.0, 0.0), Either::Right(line)));
         }
 
-        vec![]
+        match line.intersection_point(ball_movement_line) {
+            Either::Left(p_intersection) => {
+                let ball_closest_on_line = ball_movement_line.closest_point(p_intersection);
+                let ball_distance = ball_closest_on_line.distance(p_intersection);
+
+                let closest_to_intersection = (p_intersection - ball_closest_on_line).to_vector();
+
+                let col_ratio = if ball_distance == 0.0 {1.0} else {ball.radius / ball_distance};
+
+                let touch_point = p_intersection - closest_to_intersection * col_ratio;
+
+                if line.point_on_line(touch_point) {
+                    let distance_touch_to_intersection = touch_point.distance(p_intersection);
+                    let distance_intersection_to_collision = (ball.radius*ball.radius + distance_touch_to_intersection*distance_touch_to_intersection).sqrt();
+
+                    let collision_point = p_intersection - closest_to_intersection * distance_intersection_to_collision;
+
+                    collisions.push(Collision::new(ball, collision_point, touch_point, "line".to_string(), Vector::new(0.0, 0.0), Either::Right(line)));
+
+                }
+            }
+            Either::Right(p_intersection) => {}
+        }
+
+        let mut collisions: Vec<Collision> = collisions
+            .into_iter()
+            .filter(|collision| collision.is_valid())
+            .collect::<Vec<Collision>>();
+        
+        collisions.sort_by(|a, b| a.time_left().partial_cmp(&b.time_left()).unwrap());
+ 
+        collisions
 
 
     }
@@ -209,22 +265,44 @@ impl  PhysicsEnvironment {
     }
 
     pub fn get_ball_collisions(self, ball: Ball) -> Vec<Collision> {
-        let collisions = vec![];
+        let mut collisions = vec![];
 
         if self.ball_collision {
             for ball2 in self.balls {
-                if ball2 != ball {
-                    interaction = Interaction::new(ball, Either::Left(ball2), false, "ball".to_string());
+                if ball.pos !=  ball2.pos {
+                    let interaction = Interaction::new(ball, Either::Left(ball2), false, "ball".to_string());
+                    if interaction.collisions.len() > 0 {
+                        collisions.push(interaction.collisions[0].clone());
+                    }
                 }
             }
         }
 
+        for ball2 in self.collision_balls {
+            let interaction = Interaction::new(ball, Either::Left(ball2), true, "ball".to_string());
+            let ball_interactions: Vec<Collision> = interaction.collisions.iter().filter(|collision| collision.ball.pos == ball.pos).collect();
+            if ball_interactions.len() > 0 {
+                collisions.push(ball_interactions[0].clone());
+            }
+        }
+
+        for line in self.lines {
+            let interaction = Interaction::new(ball, Either::Right(line), false, "line".to_string());
+            if interaction.collisions.len() > 0 {
+                collisions.push(interaction.collisions[0].clone());
+            }
+        }
+
+
+        collisions.sort_by(|a, b| a.time_left().partial_cmp(&b.time_left()).unwrap());
+        collisions
     }
 
-    pub fn get_first_collision(&self, ball: Ball) -> Option<Collision> {
+    pub fn get_first_collision(&self, ball: Ball) -> Either<Collision, bool> {
         let collisions = self.get_ball_collisions(ball);
         if collisions.len() != 0 {
-            return false
+            return Either::Left(collisions[0].clone());
         }
+        Either::Right(false)
     }
 }

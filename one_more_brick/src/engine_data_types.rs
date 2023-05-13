@@ -7,6 +7,7 @@ fn type_of<T>(_: T) -> &'static str {
     type_name::<T>()
 }
 
+#[derive(Copy, Clone)]
 pub struct Point {
     pub x: f64,
     pub y: f64
@@ -113,12 +114,18 @@ impl Sub for Point {
     }
 }
 
-impl Clone for Point {
+// impl Clone for Point {
     fn clone(&self) -> Point {
         Point { x: self.x, y: self.y }
     }
 }
-    
+impl PartialEq for Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+#[derive(Copy, Clone)]
 pub struct Vector {
     pub x: f64,
     pub y: f64
@@ -257,13 +264,14 @@ impl Sub for Vector {
         Self { x: self.x - rhs.x, y: self.y - rhs.y }
     }
 }
-impl Clone for Vector {
+// impl Clone for Vector {
     fn clone(&self) -> Vector {
         Vector { x: self.x, y: self.y }
     }
 }
 
 
+#[derive(Copy, Clone)]
 pub struct Line {
     pub p1: Point,
     pub p2: Point,
@@ -319,13 +327,14 @@ impl Line {
     }
     
 }
-impl Clone for Line {
-    fn clone(&self) -> Line {
-        Line {p1: self.p1.clone(), p2: self.p2.clone()}
-    }
-}
+// impl Clone for Line {
+//     fn clone(&self) -> Line {
+//         Line {p1: self.p1.clone(), p2: self.p2.clone()}
+//     }
+// }
 
 
+#[derive(Copy, Clone)]
 pub struct Ball {
     pub pos: Point,
     pub vel: Vector,
@@ -339,7 +348,7 @@ impl Ball {
         self.pos = self.pos.clone() + self.vel.unit_vector() * distance;
     }
 }
-impl Clone for Ball {
+// impl Clone for Ball {
     fn clone(&self) -> Ball {
         Ball {pos: self.pos.clone(), vel: self.vel.clone(), radius: self.radius.clone()}
     }
