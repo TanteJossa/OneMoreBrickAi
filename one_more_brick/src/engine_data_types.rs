@@ -115,10 +115,10 @@ impl Sub for Point {
 }
 
 // impl Clone for Point {
-    fn clone(&self) -> Point {
-        Point { x: self.x, y: self.y }
-    }
-}
+//     fn clone(&self) -> Point {
+//         Point { x: self.x, y: self.y }
+//     }
+// }
 impl PartialEq for Point {
     fn eq(&self, other: &Self) -> bool {
         self.x == other.x && self.y == other.y
@@ -265,10 +265,10 @@ impl Sub for Vector {
     }
 }
 // impl Clone for Vector {
-    fn clone(&self) -> Vector {
-        Vector { x: self.x, y: self.y }
-    }
-}
+//     fn clone(&self) -> Vector {
+//         Vector { x: self.x, y: self.y }
+//     }
+// }
 
 
 #[derive(Copy, Clone)]
@@ -349,8 +349,8 @@ impl Ball {
     }
 }
 // impl Clone for Ball {
-    fn clone(&self) -> Ball {
-        Ball {pos: self.pos.clone(), vel: self.vel.clone(), radius: self.radius.clone()}
-    }
-}
+//     fn clone(&self) -> Ball {
+//         Ball {pos: self.pos.clone(), vel: self.vel.clone(), radius: self.radius.clone()}
+//     }
+// }
 

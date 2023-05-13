@@ -242,6 +242,7 @@ struct PhysicsEnvironment {
     ball_collision: bool,
     size: Vec<f64>,
     step_size: f64,
+    collisions: Vec<Collision>,
 }
 
 impl  PhysicsEnvironment {
@@ -261,6 +262,7 @@ impl  PhysicsEnvironment {
             ball_collision:  false,
             size: size,
             step_size: step_size,
+            collisions: vec![],
         }
     }
 
@@ -304,5 +306,20 @@ impl  PhysicsEnvironment {
             return Either::Left(collisions[0].clone());
         }
         Either::Right(false)
+    }
+
+    pub fn calc_collisionss(&mut self) {
+
+        let mut collisions = vec![];
+
+        for ball in self.balls {
+            let collision = self.get_first_collision(ball);
+            match collision {
+                Either::Left(collision) => {collisions.push(collision) }
+                Either::Right(collision) => { }
+            };
+        }
+        collisions.sort_by(|a, b| a.time_left().partial_cmp(&b.time_left()).unwrap());
+        self.collisions = collisions
     }
 }
