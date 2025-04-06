@@ -1,0 +1,869 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/apasortcite//global/global/global}
+    \entry{ToptalPhysics}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=4d61304f9353e6988d878606817703ea}{%
+           family={Aviram},
+           familyi={A\bibinitperiod},
+           given={Or},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Toptal}%
+      }
+      \strng{namehash}{4d61304f9353e6988d878606817703ea}
+      \strng{fullhash}{4d61304f9353e6988d878606817703ea}
+      \strng{fullhashraw}{4d61304f9353e6988d878606817703ea}
+      \strng{bibnamehash}{4d61304f9353e6988d878606817703ea}
+      \strng{authorbibnamehash}{4d61304f9353e6988d878606817703ea}
+      \strng{authornamehash}{4d61304f9353e6988d878606817703ea}
+      \strng{authorfullhash}{4d61304f9353e6988d878606817703ea}
+      \strng{authorfullhashraw}{4d61304f9353e6988d878606817703ea}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labeldatesource}{nodate}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Video Game Physics Tutorial - Part II: Collision Detection for Solid Objects}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.toptal.com/game/video-game-physics-part-ii-collision-detection-for-solid-objects
+      \endverb
+      \verb{url}
+      \verb https://www.toptal.com/game/video-game-physics-part-ii-collision-detection-for-solid-objects
+      \endverb
+    \endentry
+    \entry{CattoCCD}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=d12697a9f65cf29cf7cb268edea87a2a}{%
+           family={Catto},
+           familyi={C\bibinitperiod},
+           given={Erin},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{fullhash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{fullhashraw}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{bibnamehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authorbibnamehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authornamehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authorfullhash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authorfullhashraw}{d12697a9f65cf29cf7cb268edea87a2a}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Presentation Slides, GDC}
+      \field{title}{Continuous Collision}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2013}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf
+      \endverb
+      \verb{url}
+      \verb https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf
+      \endverb
+    \endentry
+    \entry{Box2DDocs}{online}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=d12697a9f65cf29cf7cb268edea87a2a}{%
+           family={Catto},
+           familyi={C\bibinitperiod},
+           given={Erin},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f0e89b7a01bc30ecc16e8ce2ffa23ac6}{%
+           family={Contributors},
+           familyi={C\bibinitperiod},
+           given={Box2D},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{fullhash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{fullhashraw}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{bibnamehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authorbibnamehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authornamehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authorfullhash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authorfullhashraw}{d999ec63f4f5427a6f81f899e8d9a638}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Box2D Documentation - Simulation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://box2d.org/documentation/md_simulation.html
+      \endverb
+      \verb{url}
+      \verb https://box2d.org/documentation/md_simulation.html
+      \endverb
+    \endentry
+    \entry{FeronatoCircleLine}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=79a8f5e5c18e52f61bab7c05a1932183}{%
+           family={Feronato},
+           familyi={F\bibinitperiod},
+           given={Emanuele},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{fullhash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{fullhashraw}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{bibnamehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authorbibnamehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authornamehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authorfullhash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authorfullhashraw}{79a8f5e5c18e52f61bab7c05a1932183}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Continuous collision detection between a moving circle and one or more static line segments – vertex collision included}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2022}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.emanueleferonato.com/2022/07/14/continuous-collision-detection-between-a-moving-circle-and-one-or-more-static-line-segments-vertex-collision-included/
+      \endverb
+      \verb{url}
+      \verb https://www.emanueleferonato.com/2022/07/14/continuous-collision-detection-between-a-moving-circle-and-one-or-more-static-line-segments-vertex-collision-included/
+      \endverb
+    \endentry
+    \entry{LeongCircleCircle}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=8279fcf865a4276c2bc809322471f007}{%
+           family={Leong},
+           familyi={L\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \strng{bibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorbibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authornamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \field{extraname}{1}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradate}{1}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Circle-Circle Collision Tutorial}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2018}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://ericleong.me/research/circle-circle/
+      \endverb
+      \verb{url}
+      \verb https://ericleong.me/research/circle-circle/
+      \endverb
+    \endentry
+    \entry{LeongCircleLine}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=8279fcf865a4276c2bc809322471f007}{%
+           family={Leong},
+           familyi={L\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \strng{bibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorbibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authornamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \field{extraname}{2}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradate}{2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Circle-Line Collision Detection Tutorial}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2018}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://ericleong.me/research/circle-line/
+      \endverb
+      \verb{url}
+      \verb https://ericleong.me/research/circle-line/
+      \endverb
+    \endentry
+    \entry{NumPy}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=5d41e41313a1c6d48282954d2eae2421}{%
+           family={{NumPy Developers}},
+           familyi={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{fullhash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{fullhashraw}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{bibnamehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authorbibnamehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authornamehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authorfullhash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authorfullhashraw}{5d41e41313a1c6d48282954d2eae2421}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{NumPy - The fundamental package for scientific computing with Python}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://numpy.org/
+      \endverb
+      \verb{url}
+      \verb https://numpy.org/
+      \endverb
+    \endentry
+    \entry{DesmosBallBall}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=e3c332baef158c03d507302ffeecbb08}{%
+           family={bronnen]},
+           familyi={b\bibinitperiod},
+           given={[Jouw\bibnamedelimb Naam\bibnamedelimb /\bibnamedelima Gebaseerd},
+           giveni={[\bibinitperiod\bibinitdelim N\bibinitperiod\bibinitdelim /\bibinitperiod\bibinitdelim G\bibinitperiod},
+           givenun=0,
+           prefix={op},
+           prefixi={o\bibinitperiod}}}%
+      }
+      \strng{namehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{fullhash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{fullhashraw}{e3c332baef158c03d507302ffeecbb08}
+      \strng{bibnamehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authorbibnamehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authornamehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authorfullhash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authorfullhashraw}{e3c332baef158c03d507302ffeecbb08}
+      \field{sortinit}{o}
+      \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Online Calculator Graph}
+      \field{note}{Visualisatie van de kwadratische vergelijking en impulsberekening voor bal-bal botsing.}
+      \field{title}{Desmos Graph: Ball-Ball Collision Calculation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.desmos.com/calculator/zu3eygltvc
+      \endverb
+      \verb{url}
+      \verb https://www.desmos.com/calculator/zu3eygltvc
+      \endverb
+    \endentry
+    \entry{Pygame}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=4e196c79ac07ac786442482929c9d5ef}{%
+           family={{Pygame Community}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{fullhash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{fullhashraw}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{bibnamehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authorbibnamehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authornamehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authorfullhash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authorfullhashraw}{4e196c79ac07ac786442482929c9d5ef}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Pygame Documentation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.pygame.org/docs/
+      \endverb
+      \verb{url}
+      \verb https://www.pygame.org/docs/
+      \endverb
+    \endentry
+    \entry{PrincetonEventSim}{online}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=6a9c16ef79ae932cd7e8bc985da5a937}{%
+           family={Sedgewick},
+           familyi={S\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e1a92f1c9f96cee95b961648633c39f3}{%
+           family={Wayne},
+           familyi={W\bibinitperiod},
+           given={Kevin},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Princeton University}%
+      }
+      \strng{namehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{fullhash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{fullhashraw}{edfb19f5da0b049e901748a2f782f877}
+      \strng{bibnamehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authorbibnamehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authornamehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authorfullhash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authorfullhashraw}{edfb19f5da0b049e901748a2f782f877}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labeldatesource}{nodate}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Event-Driven Simulation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://algs4.cs.princeton.edu/61event/
+      \endverb
+      \verb{url}
+      \verb https://algs4.cs.princeton.edu/61event/
+      \endverb
+    \endentry
+    \entry{CollisionDetectionWiki}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=535bebf06af273c7e2d9ff9d7fc43470}{%
+           family={{Wikipedia Contributors}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{fullhash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{fullhashraw}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{bibnamehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authorbibnamehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authornamehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authorfullhash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authorfullhashraw}{535bebf06af273c7e2d9ff9d7fc43470}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Collision detection}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://en.wikipedia.org/wiki/Collision_detection
+      \endverb
+      \verb{url}
+      \verb https://en.wikipedia.org/wiki/Collision_detection
+      \endverb
+    \endentry
+  \enddatalist
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{ToptalPhysics}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=4d61304f9353e6988d878606817703ea}{%
+           family={Aviram},
+           familyi={A\bibinitperiod},
+           given={Or},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Toptal}%
+      }
+      \strng{namehash}{4d61304f9353e6988d878606817703ea}
+      \strng{fullhash}{4d61304f9353e6988d878606817703ea}
+      \strng{fullhashraw}{4d61304f9353e6988d878606817703ea}
+      \strng{bibnamehash}{4d61304f9353e6988d878606817703ea}
+      \strng{authorbibnamehash}{4d61304f9353e6988d878606817703ea}
+      \strng{authornamehash}{4d61304f9353e6988d878606817703ea}
+      \strng{authorfullhash}{4d61304f9353e6988d878606817703ea}
+      \strng{authorfullhashraw}{4d61304f9353e6988d878606817703ea}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labeldatesource}{nodate}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Video Game Physics Tutorial - Part II: Collision Detection for Solid Objects}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.toptal.com/game/video-game-physics-part-ii-collision-detection-for-solid-objects
+      \endverb
+      \verb{url}
+      \verb https://www.toptal.com/game/video-game-physics-part-ii-collision-detection-for-solid-objects
+      \endverb
+    \endentry
+    \entry{CattoCCD}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=d12697a9f65cf29cf7cb268edea87a2a}{%
+           family={Catto},
+           familyi={C\bibinitperiod},
+           given={Erin},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{fullhash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{fullhashraw}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{bibnamehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authorbibnamehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authornamehash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authorfullhash}{d12697a9f65cf29cf7cb268edea87a2a}
+      \strng{authorfullhashraw}{d12697a9f65cf29cf7cb268edea87a2a}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Presentation Slides, GDC}
+      \field{title}{Continuous Collision}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2013}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf
+      \endverb
+      \verb{url}
+      \verb https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf
+      \endverb
+    \endentry
+    \entry{Box2DDocs}{online}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=d12697a9f65cf29cf7cb268edea87a2a}{%
+           family={Catto},
+           familyi={C\bibinitperiod},
+           given={Erin},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f0e89b7a01bc30ecc16e8ce2ffa23ac6}{%
+           family={Contributors},
+           familyi={C\bibinitperiod},
+           given={Box2D},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{fullhash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{fullhashraw}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{bibnamehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authorbibnamehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authornamehash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authorfullhash}{d999ec63f4f5427a6f81f899e8d9a638}
+      \strng{authorfullhashraw}{d999ec63f4f5427a6f81f899e8d9a638}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Box2D Documentation - Simulation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://box2d.org/documentation/md_simulation.html
+      \endverb
+      \verb{url}
+      \verb https://box2d.org/documentation/md_simulation.html
+      \endverb
+    \endentry
+    \entry{FeronatoCircleLine}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=79a8f5e5c18e52f61bab7c05a1932183}{%
+           family={Feronato},
+           familyi={F\bibinitperiod},
+           given={Emanuele},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{fullhash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{fullhashraw}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{bibnamehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authorbibnamehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authornamehash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authorfullhash}{79a8f5e5c18e52f61bab7c05a1932183}
+      \strng{authorfullhashraw}{79a8f5e5c18e52f61bab7c05a1932183}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Continuous collision detection between a moving circle and one or more static line segments – vertex collision included}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2022}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.emanueleferonato.com/2022/07/14/continuous-collision-detection-between-a-moving-circle-and-one-or-more-static-line-segments-vertex-collision-included/
+      \endverb
+      \verb{url}
+      \verb https://www.emanueleferonato.com/2022/07/14/continuous-collision-detection-between-a-moving-circle-and-one-or-more-static-line-segments-vertex-collision-included/
+      \endverb
+    \endentry
+    \entry{LeongCircleCircle}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=8279fcf865a4276c2bc809322471f007}{%
+           family={Leong},
+           familyi={L\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \strng{bibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorbibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authornamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \field{extraname}{1}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradate}{1}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Circle-Circle Collision Tutorial}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2018}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://ericleong.me/research/circle-circle/
+      \endverb
+      \verb{url}
+      \verb https://ericleong.me/research/circle-circle/
+      \endverb
+    \endentry
+    \entry{LeongCircleLine}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=8279fcf865a4276c2bc809322471f007}{%
+           family={Leong},
+           familyi={L\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{fullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \strng{bibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorbibnamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authornamehash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhash}{8279fcf865a4276c2bc809322471f007}
+      \strng{authorfullhashraw}{8279fcf865a4276c2bc809322471f007}
+      \field{extraname}{2}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradate}{2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Circle-Line Collision Detection Tutorial}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2018}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://ericleong.me/research/circle-line/
+      \endverb
+      \verb{url}
+      \verb https://ericleong.me/research/circle-line/
+      \endverb
+    \endentry
+    \entry{NumPy}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=5d41e41313a1c6d48282954d2eae2421}{%
+           family={{NumPy Developers}},
+           familyi={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{fullhash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{fullhashraw}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{bibnamehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authorbibnamehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authornamehash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authorfullhash}{5d41e41313a1c6d48282954d2eae2421}
+      \strng{authorfullhashraw}{5d41e41313a1c6d48282954d2eae2421}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{NumPy - The fundamental package for scientific computing with Python}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://numpy.org/
+      \endverb
+      \verb{url}
+      \verb https://numpy.org/
+      \endverb
+    \endentry
+    \entry{DesmosBallBall}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=e3c332baef158c03d507302ffeecbb08}{%
+           family={bronnen]},
+           familyi={b\bibinitperiod},
+           given={[Jouw\bibnamedelimb Naam\bibnamedelimb /\bibnamedelima Gebaseerd},
+           giveni={[\bibinitperiod\bibinitdelim N\bibinitperiod\bibinitdelim /\bibinitperiod\bibinitdelim G\bibinitperiod},
+           givenun=0,
+           prefix={op},
+           prefixi={o\bibinitperiod}}}%
+      }
+      \strng{namehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{fullhash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{fullhashraw}{e3c332baef158c03d507302ffeecbb08}
+      \strng{bibnamehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authorbibnamehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authornamehash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authorfullhash}{e3c332baef158c03d507302ffeecbb08}
+      \strng{authorfullhashraw}{e3c332baef158c03d507302ffeecbb08}
+      \field{sortinit}{o}
+      \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Online Calculator Graph}
+      \field{note}{Visualisatie van de kwadratische vergelijking en impulsberekening voor bal-bal botsing.}
+      \field{title}{Desmos Graph: Ball-Ball Collision Calculation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.desmos.com/calculator/zu3eygltvc
+      \endverb
+      \verb{url}
+      \verb https://www.desmos.com/calculator/zu3eygltvc
+      \endverb
+    \endentry
+    \entry{Pygame}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=4e196c79ac07ac786442482929c9d5ef}{%
+           family={{Pygame Community}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{fullhash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{fullhashraw}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{bibnamehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authorbibnamehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authornamehash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authorfullhash}{4e196c79ac07ac786442482929c9d5ef}
+      \strng{authorfullhashraw}{4e196c79ac07ac786442482929c9d5ef}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Pygame Documentation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.pygame.org/docs/
+      \endverb
+      \verb{url}
+      \verb https://www.pygame.org/docs/
+      \endverb
+    \endentry
+    \entry{PrincetonEventSim}{online}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=6a9c16ef79ae932cd7e8bc985da5a937}{%
+           family={Sedgewick},
+           familyi={S\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e1a92f1c9f96cee95b961648633c39f3}{%
+           family={Wayne},
+           familyi={W\bibinitperiod},
+           given={Kevin},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Princeton University}%
+      }
+      \strng{namehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{fullhash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{fullhashraw}{edfb19f5da0b049e901748a2f782f877}
+      \strng{bibnamehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authorbibnamehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authornamehash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authorfullhash}{edfb19f5da0b049e901748a2f782f877}
+      \strng{authorfullhashraw}{edfb19f5da0b049e901748a2f782f877}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labeldatesource}{nodate}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Event-Driven Simulation}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://algs4.cs.princeton.edu/61event/
+      \endverb
+      \verb{url}
+      \verb https://algs4.cs.princeton.edu/61event/
+      \endverb
+    \endentry
+    \entry{CollisionDetectionWiki}{online}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=535bebf06af273c7e2d9ff9d7fc43470}{%
+           family={{Wikipedia Contributors}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{fullhash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{fullhashraw}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{bibnamehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authorbibnamehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authornamehash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authorfullhash}{535bebf06af273c7e2d9ff9d7fc43470}
+      \strng{authorfullhashraw}{535bebf06af273c7e2d9ff9d7fc43470}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Collision detection}
+      \field{urlday}{10}
+      \field{urlmonth}{4}
+      \field{urlyear}{2024}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://en.wikipedia.org/wiki/Collision_detection
+      \endverb
+      \verb{url}
+      \verb https://en.wikipedia.org/wiki/Collision_detection
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
