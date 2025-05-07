@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber opdracht"] 1743952371.32151 "opdracht.bcf" "opdracht.bbl" "opdracht" 1743953348.8651 0
-  "opdracht.bcf" 1743953348 134600 fb4860755c88c327fe322a36fb34cb7d "pdflatex"
-  "references.bib" 1743952367 4145 d75232e5548a66e330dd66d17cbdfad5 ""
+["biber opdracht"] 1744371765.58695 "opdracht.bcf" "opdracht.bbl" "opdracht" 1744371868.95398 0
+  "opdracht.bcf" 1744371868 134600 fb4860755c88c327fe322a36fb34cb7d "pdflatex"
+  "references.bib" 1744371763 4139 03d9c8278dbb98d3bbbcf03df6ac35df ""
   (generated)
   "opdracht.bbl"
   "opdracht.blg"
   (rewritten before read)
-["pdflatex"] 1743953347.67302 "c:/Users/joost/Documents/GitHub/OneMoreBrickAi/inf_opdracht/opdracht.tex" "opdracht.pdf" "opdracht" 1743953348.86588 0
+["pdflatex"] 1744371866.9428 "c:/Users/joost/Documents/GitHub/OneMoreBrickAi/inf_opdracht/opdracht.tex" "opdracht.pdf" "opdracht" 1744371868.95494 0
   "C:/Program Files/MiKTeX/fonts/tfm/jknappen/ec/ecbx1095.tfm" 993061956 3228 aacd2ac2d814480e4422ad7e830fd2d4 ""
   "C:/Program Files/MiKTeX/fonts/tfm/jknappen/ec/ecbx1200.tfm" 993061958 3200 b8d69bc738e5ef3e08cefeef3109ff56 ""
   "C:/Program Files/MiKTeX/fonts/tfm/jknappen/ec/ecbx1440.tfm" 993061960 3196 0b37fa3083e15c57cfa8c4ff52f2807a ""
@@ -152,12 +152,12 @@
   "C:/Users/joost/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1743114435 12026022 263f291f80ee9d5070e19e2d6ad69850 ""
   "c:/Users/joost/Documents/GitHub/OneMoreBrickAi/inf_opdracht/opdracht.tex" 1743953347 32017 73f07b09198fe65ecb26fac5d3f188e9 ""
   "header-image.png" 1743951282 22640 71ad6601d83cb765e198ff77383df0fd ""
-  "opdracht.aux" 1743953348 9259 5c3745e9845d08381b3d0214a00e0ed5 "pdflatex"
-  "opdracht.bbl" 1743952372 35615 1aabd2248abed02af322dc154dbb8551 "biber opdracht"
-  "opdracht.out" 1743953348 5339 b9be200ed4f890a1d853a770811a23eb "pdflatex"
-  "opdracht.run.xml" 1743953348 2383 a64bcf459430a63ffbf831887899d8a6 "pdflatex"
+  "opdracht.aux" 1744371868 9259 f9029fb682923f68aa0a8c2de6aa283b "pdflatex"
+  "opdracht.bbl" 1744371862 35517 89bafa6f9ea7952e9cc4629400e90ea7 "biber opdracht"
+  "opdracht.out" 1744371868 5339 b9be200ed4f890a1d853a770811a23eb "pdflatex"
+  "opdracht.run.xml" 1744371868 2383 a64bcf459430a63ffbf831887899d8a6 "pdflatex"
   "opdracht.tex" 1743953347 32017 73f07b09198fe65ecb26fac5d3f188e9 ""
-  "opdracht.toc" 1743953348 2849 da57219b5ad9bb50e347d02ddd1abff3 "pdflatex"
+  "opdracht.toc" 1744371868 2849 da57219b5ad9bb50e347d02ddd1abff3 "pdflatex"
   (generated)
   "opdracht.aux"
   "opdracht.bcf"

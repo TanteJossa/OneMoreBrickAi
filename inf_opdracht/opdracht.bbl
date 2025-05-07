@@ -289,23 +289,23 @@
     \endentry
     \entry{DesmosBallBall}{misc}{}{}
       \name{author}{1}{}{%
-        {{un=0,uniquepart=base,hash=e3c332baef158c03d507302ffeecbb08}{%
-           family={bronnen]},
+        {{un=0,uniquepart=base,hash=88f1e007b1ff48fccdf38ca697e39a59}{%
+           family={bronnen},
            familyi={b\bibinitperiod},
-           given={[Jouw\bibnamedelimb Naam\bibnamedelimb /\bibnamedelima Gebaseerd},
-           giveni={[\bibinitperiod\bibinitdelim N\bibinitperiod\bibinitdelim /\bibinitperiod\bibinitdelim G\bibinitperiod},
+           given={Joost\bibnamedelimb /\bibnamedelima Gebaseerd},
+           giveni={J\bibinitperiod\bibinitdelim /\bibinitperiod\bibinitdelim G\bibinitperiod},
            givenun=0,
            prefix={op},
            prefixi={o\bibinitperiod}}}%
       }
-      \strng{namehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{fullhash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{fullhashraw}{e3c332baef158c03d507302ffeecbb08}
-      \strng{bibnamehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authorbibnamehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authornamehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authorfullhash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authorfullhashraw}{e3c332baef158c03d507302ffeecbb08}
+      \strng{namehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{fullhash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{fullhashraw}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{bibnamehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authorbibnamehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authornamehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authorfullhash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authorfullhashraw}{88f1e007b1ff48fccdf38ca697e39a59}
       \field{sortinit}{o}
       \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
       \field{extradatescope}{labelyear}
@@ -712,23 +712,23 @@
     \endentry
     \entry{DesmosBallBall}{misc}{}{}
       \name{author}{1}{}{%
-        {{un=0,uniquepart=base,hash=e3c332baef158c03d507302ffeecbb08}{%
-           family={bronnen]},
+        {{un=0,uniquepart=base,hash=88f1e007b1ff48fccdf38ca697e39a59}{%
+           family={bronnen},
            familyi={b\bibinitperiod},
-           given={[Jouw\bibnamedelimb Naam\bibnamedelimb /\bibnamedelima Gebaseerd},
-           giveni={[\bibinitperiod\bibinitdelim N\bibinitperiod\bibinitdelim /\bibinitperiod\bibinitdelim G\bibinitperiod},
+           given={Joost\bibnamedelimb /\bibnamedelima Gebaseerd},
+           giveni={J\bibinitperiod\bibinitdelim /\bibinitperiod\bibinitdelim G\bibinitperiod},
            givenun=0,
            prefix={op},
            prefixi={o\bibinitperiod}}}%
       }
-      \strng{namehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{fullhash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{fullhashraw}{e3c332baef158c03d507302ffeecbb08}
-      \strng{bibnamehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authorbibnamehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authornamehash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authorfullhash}{e3c332baef158c03d507302ffeecbb08}
-      \strng{authorfullhashraw}{e3c332baef158c03d507302ffeecbb08}
+      \strng{namehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{fullhash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{fullhashraw}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{bibnamehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authorbibnamehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authornamehash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authorfullhash}{88f1e007b1ff48fccdf38ca697e39a59}
+      \strng{authorfullhashraw}{88f1e007b1ff48fccdf38ca697e39a59}
       \field{sortinit}{o}
       \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
       \field{extradatescope}{labelyear}

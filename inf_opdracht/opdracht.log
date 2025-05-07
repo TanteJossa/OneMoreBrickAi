@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.3) (preloaded format=pdflatex 2025.3.27)  6 APR 2025 17:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.3) (preloaded format=pdflatex 2025.3.27)  11 APR 2025 13:44
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -769,8 +769,8 @@ Overfull \hbox (52.70137pt too wide) in paragraph at lines 182--184
  []
 
 
-Overfull \hbox (15.98384pt too wide) in paragraph at lines 182--184
-\T1/cmr/m/n/10.95 en de Desmos-visualisatie ([]op bron-nen], [][]2024[][]). De klein-ste niet-negatieve op-los-sing $\OML/cmm/m/it/10.95 t \OT1/cmr/m/n/10.95 = []$
+Overfull \hbox (12.95775pt too wide) in paragraph at lines 182--184
+\T1/cmr/m/n/10.95 en de Desmos-visualisatie ([]op bron-nen, [][]2024[][]). De klein-ste niet-negatieve op-los-sing $\OML/cmm/m/it/10.95 t \OT1/cmr/m/n/10.95 = []$
  []
 
 
@@ -842,7 +842,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  75i,10n,81p,910b,2809s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1095.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1095.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1095.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1095.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\joost\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on opdracht.pdf (16 pages, 331581 bytes).
+Output written on opdracht.pdf (16 pages, 331571 bytes).
 PDF statistics:
  768 PDF objects out of 1000 (max. 8388607)
  68 named destinations out of 1000 (max. 500000)
